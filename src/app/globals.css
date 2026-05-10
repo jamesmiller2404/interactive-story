@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
 :root {
-  --app-border-radius: 10px;
-  --app-border-width: 1px;
+  --app-border-radius: 0px;
+  --app-border-radius-card: 10px;
+  --app-border-radius-button: 3px;
+  --app-border-width: 0px;
   --app-border-style: solid;
   --app-border-caret-width: 0.25rem;
   --app-size-sidebar-width: 16rem;
@@ -100,6 +102,8 @@
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --radius-app: var(--app-border-radius);
+  --radius-app-card: var(--app-border-radius-card);
+  --radius-app-button: var(--app-border-radius-button);
 }
 
 @media (prefers-color-scheme: dark) {

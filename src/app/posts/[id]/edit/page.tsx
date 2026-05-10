@@ -5,6 +5,16 @@ import Link from 'next/link'
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 
+function stripHtmlTags(html: string): string {
+  return html.replace(/<[^>]*>/g, '')
+}
+
+function countWords(text: string): number {
+  const plainText = stripHtmlTags(text)
+  const words = plainText.trim().split(/\s+/)
+  return words.length === 1 && words[0] === '' ? 0 : words.length
+}
+
 function useAutoSave(id: number, title: string, content: string) {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle')
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
@@ -84,6 +94,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   const [content, setContent] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [wordCount, setWordCount] = useState(0)
   const { saveStatus, publishDraft } = useAutoSave(Number(id), title, content)
 
   useEffect(() => {
@@ -100,6 +111,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
         setPost(data)
         setTitle(data.title)
         setContent(data.content)
+        setWordCount(countWords(data.content))
       } catch (error) {
         console.error('Failed to load post:', error)
         setError(error instanceof Error ? error.message : 'Failed to load post')
@@ -142,8 +154,8 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   }
 
   return (
-    <div className="min-h-screen bg-[var(--app-color-reader-bg)] text-[var(--app-color-reader-text)]">
-      <main className="max-w-[var(--app-size-reader-content-max)] mx-auto px-[var(--app-space-reader-x)] py-[var(--app-space-reader-y)] font-serif leading-relaxed">
+    <div className="min-h-screen flex flex-col bg-[var(--app-color-reader-bg)] text-[var(--app-color-reader-text)]">
+      <main className="flex-1 max-w-[var(--app-size-reader-content-max)] mx-auto px-[var(--app-space-reader-x)] py-[var(--app-space-reader-y)] pb-16 font-serif leading-relaxed">
         <header className="mb-[var(--app-space-section)] relative">
           <div className="mb-[var(--app-space-section)] flex gap-2">
             <Link
@@ -220,7 +232,10 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
               id="article-content"
               contentEditable
               dangerouslySetInnerHTML={{ __html: content }}
-              onInput={(event) => setContent(event.currentTarget.innerHTML)}
+              onInput={(event) => {
+                setContent(event.currentTarget.innerHTML)
+                setWordCount(countWords(event.currentTarget.innerHTML))
+              }}
               className="min-h-[var(--app-size-editor-min-height)] w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] text-lg leading-8 text-[var(--app-color-reader-text)] outline-none placeholder:text-[var(--app-color-reader-placeholder)] focus:[border-color:var(--app-border-reader-focus)]"
             />
           </div>
@@ -234,6 +249,13 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
           </button>
         </div>
       </main>
+      <footer className="fixed bottom-0 left-0 right-0 bg-[var(--app-color-reader-surface)] border-t border-[var(--app-border-reader)] px-[var(--app-space-reader-x)] py-[var(--app-space-control-y)] text-sm text-[var(--app-color-reader-muted)] z-10">
+        <div className="max-w-[var(--app-size-reader-content-max)] mx-auto">
+          Word count: {wordCount}
+        </div>
+      </footer>
+
+
     </div>
   )
 }

@@ -158,7 +158,7 @@ export default function Home() {
             ref={createButtonRef}
             type="button"
             onClick={() => setCreateMenuOpen((open) => !open)}
-            className="flex w-full items-center justify-between rounded-app bg-[var(--app-color-accent)] px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] text-sm font-medium text-[var(--app-color-accent-foreground)] hover:bg-[var(--app-color-accent-hover)]"
+            className="flex w-full items-center justify-between rounded-app-button bg-[var(--app-color-accent)] px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] text-sm font-medium text-[var(--app-color-accent-foreground)] hover:bg-[var(--app-color-accent-hover)]"
             aria-expanded={createMenuOpen}
             aria-haspopup="menu"
           >
@@ -172,19 +172,19 @@ export default function Home() {
           {createMenuOpen && (
             <div
               ref={createMenuRef}
-              className="absolute left-0 z-10 mt-[var(--app-space-menu-offset)] w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-dashboard-panel)] bg-[var(--app-color-dashboard-panel)] p-[var(--app-space-menu)] shadow-xl"
+              className="absolute left-0 z-10 mt-[var(--app-space-menu-offset)] w-full rounded-app-card [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-dashboard-panel)] bg-[var(--app-color-dashboard-panel)] p-[var(--app-space-menu)] shadow-xl"
               role="menu"
             >
               <Link
                 href="/posts/new"
-                className="block rounded-app px-[var(--app-space-menu-item-x)] py-[var(--app-space-menu-item-y)] text-sm text-[var(--app-color-text-primary)] hover:bg-[var(--app-color-dashboard-border)]"
+                className="block rounded-app-button px-[var(--app-space-menu-item-x)] py-[var(--app-space-menu-item-y)] text-sm text-[var(--app-color-text-primary)] hover:bg-[var(--app-color-dashboard-border)]"
                 role="menuitem"
               >
                 Article
               </Link>
               <button
                 type="button"
-                className="block w-full rounded-app px-[var(--app-space-menu-item-x)] py-[var(--app-space-menu-item-y)] text-left text-sm text-[var(--app-color-text-muted)] hover:bg-[var(--app-color-dashboard-border)]"
+                className="block w-full rounded-app-button px-[var(--app-space-menu-item-x)] py-[var(--app-space-menu-item-y)] text-left text-sm text-[var(--app-color-text-muted)] hover:bg-[var(--app-color-dashboard-border)]"
                 role="menuitem"
               >
                 Note
@@ -211,14 +211,14 @@ export default function Home() {
           </div>
 
           {error && (
-            <div className="mb-[var(--app-space-stack)] rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-error)] bg-[var(--app-color-error-bg)] p-[var(--app-space-menu-item-x)] text-[var(--app-color-error-text)]">
+            <div className="mb-[var(--app-space-stack)] rounded-app-card [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-error)] bg-[var(--app-color-error-bg)] p-[var(--app-space-menu-item-x)] text-[var(--app-color-error-text)]">
               {error}
             </div>
           )}
 
           <div className="space-y-[var(--app-space-stack)]">
             {posts.map((post) => (
-              <div key={post.id} className="rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-dashboard-panel)] bg-[var(--app-color-dashboard-panel)] p-[var(--app-space-card)]">
+              <div key={post.id} className="rounded-app-card [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-dashboard-panel)] bg-[var(--app-color-dashboard-panel)] p-[var(--app-space-card)]">
                 <div className="flex items-center justify-between mb-[var(--app-space-label-gap)]">
                   <div className="flex items-center gap-2">
                     <Link href={post.status === 'DRAFT' ? `/posts/${post.id}/edit` : `/posts/${post.id}`}>
@@ -227,7 +227,7 @@ export default function Home() {
                     {post.status === 'DRAFT' && (
                       <Link
                         href={`/posts/${post.id}/edit`}
-                        className="flex h-6 w-6 items-center justify-center rounded-app bg-[var(--app-color-accent)] text-xs font-medium text-[var(--app-color-accent-foreground)] hover:bg-[var(--app-color-accent-hover)]"
+                        className="flex h-6 w-6 items-center justify-center rounded-app-button bg-[var(--app-color-accent)] text-xs font-medium text-[var(--app-color-accent-foreground)] hover:bg-[var(--app-color-accent-hover)]"
                         aria-label={`Edit draft "${post.title}"`}
                       >
                         ✏️
@@ -236,12 +236,12 @@ export default function Home() {
                   </div>
                   <div className="flex items-center gap-[var(--app-space-control-gap)]">
                     {post.status === 'DRAFT' && (
-                      <span className="rounded-app bg-[var(--app-color-accent)] px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] text-xs font-medium text-[var(--app-color-accent-foreground)]">
+                      <span className="rounded-app-button bg-[var(--app-color-accent)] px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] text-xs font-medium text-[var(--app-color-accent-foreground)]">
                         Draft
                       </span>
                     )}
                     {post.status === 'PUBLISHED' && (
-                      <span className="rounded-app bg-green-500 px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] text-xs font-medium text-white">
+                      <span className="rounded-app-button bg-green-500 px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] text-xs font-medium text-white">
                         Published
                       </span>
                     )}
@@ -251,7 +251,7 @@ export default function Home() {
                         setPostToDelete(post)
                         setDeleteConfirmOpen(true)
                       }}
-                      className="flex h-8 w-8 items-center justify-center rounded-app text-red-500 hover:bg-red-50 hover:text-red-700"
+                      className="flex h-8 w-8 items-center justify-center rounded-app-button text-red-500 hover:bg-red-50 hover:text-red-700"
                       aria-label={`Delete post "${post.title}"`}
                     >
                       <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -279,7 +279,7 @@ export default function Home() {
           aria-modal="true"
           aria-labelledby="settings-title"
         >
-          <div className="w-full max-w-[var(--app-size-modal-max)] rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-dashboard)] bg-[var(--app-color-dashboard-surface)] p-[var(--app-space-modal)] text-[var(--app-color-text-primary)] shadow-xl">
+          <div className="w-full max-w-[var(--app-size-modal-max)] rounded-app-card [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-dashboard)] bg-[var(--app-color-dashboard-surface)] p-[var(--app-space-modal)] text-[var(--app-color-text-primary)] shadow-xl">
             <div className="mb-[var(--app-space-stack)] flex items-center justify-between gap-[var(--app-space-card)]">
               <h2 id="settings-title" className="text-xl font-semibold">
                 Settings
@@ -305,7 +305,7 @@ export default function Home() {
                 const nextLimit = Number(e.target.value)
                 savePostPreviewWordLimit(Number.isFinite(nextLimit) && nextLimit > 0 ? Math.floor(nextLimit) : 1)
               }}
-              className="mt-[var(--app-space-label-gap)] w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-dashboard)] bg-[var(--app-color-dashboard-bg)] p-[var(--app-space-control-y)] text-[var(--app-color-text-primary)]"
+              className="mt-[var(--app-space-label-gap)] w-full rounded-app-card [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-dashboard)] bg-[var(--app-color-dashboard-bg)] p-[var(--app-space-control-y)] text-[var(--app-color-text-primary)]"
             />
           </div>
         </div>
@@ -318,7 +318,7 @@ export default function Home() {
           aria-modal="true"
           aria-labelledby="delete-confirm-title"
         >
-          <div className="w-full max-w-[var(--app-size-modal-max)] rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-dashboard)] bg-[var(--app-color-dashboard-surface)] p-[var(--app-space-modal)] text-[var(--app-color-text-primary)] shadow-xl">
+          <div className="w-full max-w-[var(--app-size-modal-max)] rounded-app-card [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-dashboard)] bg-[var(--app-color-dashboard-surface)] p-[var(--app-space-modal)] text-[var(--app-color-text-primary)] shadow-xl">
             <div className="mb-[var(--app-space-stack)]">
               <h2 id="delete-confirm-title" className="text-xl font-semibold">
                 Delete Post
@@ -334,14 +334,14 @@ export default function Home() {
                   setDeleteConfirmOpen(false)
                   setPostToDelete(null)
                 }}
-                className="rounded-app px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] text-sm font-medium text-[var(--app-color-text-primary)] hover:bg-[var(--app-color-dashboard-border)]"
+                className="rounded-app-button px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] text-sm font-medium text-[var(--app-color-text-primary)] hover:bg-[var(--app-color-dashboard-border)]"
               >
                 Cancel
               </button>
               <button
                 type="button"
                 onClick={() => deletePost(postToDelete)}
-                className="rounded-app bg-red-500 px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] text-sm font-medium text-white hover:bg-red-600"
+                className="rounded-app-button bg-red-500 px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] text-sm font-medium text-white hover:bg-red-600"
               >
                 Delete
               </button>
