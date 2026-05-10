@@ -32,6 +32,8 @@
   --app-space-reader-y: 3rem;
   --app-space-reader-footer-top: 2rem;
   --app-space-reader-footer-margin: 3rem;
+  --app-line-spacing: 2.2;
+  --app-paragraph-spacing: 2.0rem;
   --app-color-dashboard-bg: #161718;
   --app-color-dashboard-surface: #131414;
   --app-color-dashboard-panel: #1b1c1d;
@@ -129,4 +131,36 @@ body {
 
 .edit-toolbar {
   width: 600px;
+}
+
+.ProseMirror {
+  line-height: var(--app-line-spacing) !important;
+}
+
+.prose {
+  line-height: var(--app-line-spacing) !important;
+}
+
+.prose.prose-lg {
+  line-height: var(--app-line-spacing) !important;
+}
+
+.ProseMirror p {
+  margin-bottom: var(--app-paragraph-spacing) !important;
+}
+
+.prose p {
+  margin-bottom: var(--app-paragraph-spacing) !important;
+}
+
+.prose.prose-lg p {
+  margin-bottom: var(--app-paragraph-spacing) !important;
+}
+
+.story-text {
+  line-height: var(--app-line-spacing);
+}
+
+.story-text p {
+  margin-bottom: var(--app-paragraph-spacing);
 }

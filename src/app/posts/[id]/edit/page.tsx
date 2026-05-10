@@ -234,7 +234,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
             </label>
             <EditorContent
               editor={editor}
-              className="min-h-[var(--app-size-editor-min-height)] w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] text-lg leading-8 text-[var(--app-color-reader-text)] outline-none focus-within:[border-color:var(--app-border-reader-focus)] [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[var(--app-size-editor-min-height)] [&_.ProseMirror]:text-lg [&_.ProseMirror]:leading-8 [&_.ProseMirror]:text-[var(--app-color-reader-text)]"
+              className="min-h-[var(--app-size-editor-min-height)] w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] text-lg text-[var(--app-color-reader-text)] outline-none focus-within:[border-color:var(--app-border-reader-focus)] [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[var(--app-size-editor-min-height)] [&_.ProseMirror]:text-lg [&_.ProseMirror]:text-[var(--app-color-reader-text)]"
             />
           </div>
 
