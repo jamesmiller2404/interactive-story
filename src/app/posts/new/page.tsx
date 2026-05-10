@@ -2,6 +2,9 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
+import { useEditor, EditorContent } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import DOMPurify from 'dompurify'
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 
@@ -16,7 +19,8 @@ function useAutoSave(title: string, content: string) {
     const startTime = Date.now()
     setSaveStatus('saving')
     try {
-      const payload = { title, content, status: 'DRAFT' }
+      const sanitizedContent = DOMPurify.sanitize(content)
+      const payload = { title, content: sanitizedContent, status: 'DRAFT' }
       let res: Response
       if (draftId) {
         res = await fetch('/api/posts', {
@@ -62,6 +66,14 @@ function useAutoSave(title: string, content: string) {
 export default function NewArticlePage() {
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
+  const editor = useEditor({
+    extensions: [StarterKit],
+    content: '',
+    immediatelyRender: false,
+    onUpdate: ({ editor }) => {
+      setContent(editor.getHTML())
+    },
+  })
   const { saveStatus } = useAutoSave(title, content)
 
 
@@ -113,11 +125,9 @@ export default function NewArticlePage() {
             <label className="mb-[var(--app-space-label-gap)] block font-sans text-sm font-medium" htmlFor="article-content">
               Post Content
             </label>
-            <textarea
-              id="article-content"
-              value={content}
-              onChange={(event) => setContent(event.target.value)}
-              className="min-h-[var(--app-size-editor-min-height)] w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] text-lg leading-8 text-[var(--app-color-reader-text)] outline-none placeholder:text-[var(--app-color-reader-placeholder)] focus:[border-color:var(--app-border-reader-focus)]"
+            <EditorContent
+              editor={editor}
+              className="min-h-[var(--app-size-editor-min-height)] w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] text-lg leading-8 text-[var(--app-color-reader-text)] outline-none focus-within:[border-color:var(--app-border-reader-focus)] [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[var(--app-size-editor-min-height)] [&_.ProseMirror]:text-lg [&_.ProseMirror]:leading-8 [&_.ProseMirror]:text-[var(--app-color-reader-text)]"
             />
           </div>
         </div>

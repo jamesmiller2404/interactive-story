@@ -53,19 +53,45 @@ function savePostPreviewWordLimit(wordLimit: number) {
   window.dispatchEvent(new Event(POST_PREVIEW_WORD_LIMIT_EVENT))
 }
 
-function stripHtmlTags(html: string): string {
-  return html.replace(/<[^>]*>/g, '')
-}
+function limitHtmlWords(html: string, wordLimit: number): string {
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(html, 'text/html')
+  let wordCount = 0
 
-function limitWords(text: string, wordLimit: number) {
-  const plainText = stripHtmlTags(text)
-  const words = plainText.trim().split(/\s+/)
-
-  if (words.length <= wordLimit) {
-    return text
+  function walk(node: Node): boolean {
+    if (node.nodeType === Node.TEXT_NODE) {
+      const text = node.textContent || ''
+      const words = text.trim().split(/\s+/)
+      if (words.length === 0 || words[0] === '') return true
+      if (wordCount + words.length <= wordLimit) {
+        wordCount += words.length
+        return true
+      } else {
+        const remaining = wordLimit - wordCount
+        node.textContent = words.slice(0, remaining).join(' ') + (remaining < words.length ? '...' : '')
+        return false
+      }
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      const children = Array.from(node.childNodes)
+      for (const child of children) {
+        if (!walk(child)) {
+          // Remove following siblings and their content
+          let sibling = child.nextSibling
+          while (sibling) {
+            const next = sibling.nextSibling
+            sibling.parentNode?.removeChild(sibling)
+            sibling = next
+          }
+          return false
+        }
+      }
+      return true
+    }
+    return true
   }
 
-  return `${words.slice(0, wordLimit).join(' ')}...`
+  walk(doc.body)
+  return doc.body.innerHTML
 }
 
 export default function Home() {
@@ -260,9 +286,7 @@ export default function Home() {
                     </button>
                   </div>
                 </div>
-                <p className="whitespace-pre-wrap">
-                  {limitWords(post.content, postPreviewWordLimit)}
-                </p>
+                <p className="whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: limitHtmlWords(post.content, postPreviewWordLimit) }} />
                 <p className="text-sm text-[var(--app-color-text-muted)] mt-[var(--app-space-label-gap)]">
                   Created: {new Date(post.createdAt).toLocaleDateString()}
                 </p>

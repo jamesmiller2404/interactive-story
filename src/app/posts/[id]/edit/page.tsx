@@ -2,6 +2,9 @@
 
 import { use, useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
+import { useEditor, EditorContent } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
+import DOMPurify from 'dompurify'
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 
@@ -25,10 +28,11 @@ function useAutoSave(id: number, title: string, content: string) {
     const startTime = Date.now()
     setSaveStatus('saving')
     try {
+      const sanitizedContent = DOMPurify.sanitize(content)
       const res = await fetch('/api/posts', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, title, content })
+        body: JSON.stringify({ id, title, content: sanitizedContent })
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
@@ -95,7 +99,16 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [wordCount, setWordCount] = useState(0)
-  const contentRef = useRef<HTMLDivElement>(null)
+  const editor = useEditor({
+    extensions: [StarterKit],
+    content: '',
+    immediatelyRender: false,
+    onUpdate: ({ editor }) => {
+      const html = editor.getHTML()
+      setContent(html)
+      setWordCount(countWords(html))
+    },
+  })
   const { saveStatus, publishDraft } = useAutoSave(Number(id), title, content)
 
   useEffect(() => {
@@ -113,9 +126,6 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
         setTitle(data.title)
         setContent(data.content)
         setWordCount(countWords(data.content))
-        if (contentRef.current) {
-          contentRef.current.innerHTML = data.content
-        }
       } catch (error) {
         console.error('Failed to load post:', error)
         setError(error instanceof Error ? error.message : 'Failed to load post')
@@ -125,6 +135,12 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
     }
     fetchPost()
   }, [id])
+
+  useEffect(() => {
+    if (editor && post) {
+      editor.commands.setContent(post.content)
+    }
+  }, [editor, post])
 
   const publishArticle = async () => {
     setError('')
@@ -216,69 +232,9 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
             <label className="mb-[var(--app-space-label-gap)] block font-sans text-sm font-medium" htmlFor="article-content">
               Post Content
             </label>
-            <div className="edit-toolbar mb-[var(--app-space-label-gap)] flex gap-2">
-              <button
-                type="button"
-                onClick={() => document.execCommand('bold')}
-                className="rounded-app bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium text-[var(--app-color-reader-text)] hover:bg-[var(--app-color-reader-surface-hover)]"
-              >
-                <strong>B</strong>
-              </button>
-              <button
-                type="button"
-                onClick={() => document.execCommand('italic')}
-                className="rounded-app bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium text-[var(--app-color-reader-text)] hover:bg-[var(--app-color-reader-surface-hover)]"
-              >
-                <em>I</em>
-              </button>
-            </div>
-            <div
-              ref={contentRef}
-              id="article-content"
-              contentEditable
-              onInput={(event) => {
-                setContent(event.currentTarget.innerHTML)
-                setWordCount(countWords(event.currentTarget.innerHTML))
-              }}
-              onPaste={(event) => {
-                event.preventDefault()
-                const html = event.clipboardData?.getData('text/html')
-                const text = event.clipboardData?.getData('text/plain')
-
-                const selection = window.getSelection()
-                if (selection && selection.rangeCount > 0) {
-                  const range = selection.getRangeAt(0)
-                  if (html) {
-                    const fragment = document.createDocumentFragment()
-                    const tempDiv = document.createElement('div')
-                    tempDiv.innerHTML = html
-                    while (tempDiv.firstChild) {
-                      fragment.appendChild(tempDiv.firstChild)
-                    }
-                    range.deleteContents()
-                    range.insertNode(fragment)
-                  } else if (text) {
-                    range.deleteContents()
-                    range.insertNode(document.createTextNode(text))
-                  }
-                } else {
-                  // Fallback for when no selection exists
-                  if (html) {
-                    document.execCommand('insertHTML', false, html)
-                  } else if (text) {
-                    document.execCommand('insertText', false, text)
-                  }
-                }
-
-                // Update content after paste
-                setTimeout(() => {
-                  if (contentRef.current) {
-                    setContent(contentRef.current.innerHTML)
-                    setWordCount(countWords(contentRef.current.innerHTML))
-                  }
-                }, 0)
-              }}
-              className="edit-content min-h-[var(--app-size-editor-min-height)] rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] text-lg leading-8 text-[var(--app-color-reader-text)] outline-none placeholder:text-[var(--app-color-reader-placeholder)] focus:[border-color:var(--app-border-reader-focus)]"
+            <EditorContent
+              editor={editor}
+              className="min-h-[var(--app-size-editor-min-height)] w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] text-lg leading-8 text-[var(--app-color-reader-text)] outline-none focus-within:[border-color:var(--app-border-reader-focus)] [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[var(--app-size-editor-min-height)] [&_.ProseMirror]:text-lg [&_.ProseMirror]:leading-8 [&_.ProseMirror]:text-[var(--app-color-reader-text)]"
             />
           </div>
 
