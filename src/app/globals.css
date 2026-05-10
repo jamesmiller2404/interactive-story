@@ -118,3 +118,15 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+.edit-input {
+  width: 600px;
+}
+
+.edit-content {
+  width: 600px;
+}
+
+.edit-toolbar {
+  width: 600px;
+}
