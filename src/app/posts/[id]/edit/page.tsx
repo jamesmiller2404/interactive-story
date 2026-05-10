@@ -156,7 +156,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
               href={`/posts/${id}`}
               className="inline-flex rounded-app bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium text-[var(--app-color-reader-text)] transition hover:bg-[var(--app-color-reader-surface-hover)]"
             >
-              View Post
+              Preview Post
             </Link>
           </div>
           {(saveStatus === 'saving' || saveStatus === 'saved') && (
@@ -211,9 +211,9 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
           <button
             type="button"
             onClick={publishArticle}
-            className="rounded-app bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium text-[var(--app-color-reader-text)] transition hover:bg-[var(--app-color-reader-surface-hover)]"
+            className="rounded-app bg-blue-600 px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium text-white transition hover:bg-blue-700"
           >
-            Publish Article
+            Publish
           </button>
         </div>
       </main>

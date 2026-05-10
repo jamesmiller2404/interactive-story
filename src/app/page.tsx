@@ -68,6 +68,8 @@ export default function Home() {
   const [error, setError] = useState('')
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [createMenuOpen, setCreateMenuOpen] = useState(false)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const [postToDelete, setPostToDelete] = useState<Post | null>(null)
   const createButtonRef = useRef<HTMLButtonElement>(null)
   const createMenuRef = useRef<HTMLDivElement>(null)
   const postPreviewWordLimit = useSyncExternalStore(
@@ -101,6 +103,29 @@ export default function Home() {
 
     fetchPosts()
   }, [])
+
+  const deletePost = async (post: Post) => {
+    try {
+      const res = await fetch(`/api/posts/${post.id}`, {
+        method: 'DELETE',
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        throw new Error(data.error ?? 'Failed to delete post')
+      }
+
+      setPosts((prevPosts) => prevPosts.filter((p) => p.id !== post.id))
+      setDeleteConfirmOpen(false)
+      setPostToDelete(null)
+      setError('')
+    } catch (error) {
+      console.error('Failed to delete post:', error)
+      setError(error instanceof Error ? error.message : 'Failed to delete post')
+      setDeleteConfirmOpen(false)
+      setPostToDelete(null)
+    }
+  }
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -190,14 +215,34 @@ export default function Home() {
             {posts.map((post) => (
               <div key={post.id} className="rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-dashboard-panel)] bg-[var(--app-color-dashboard-panel)] p-[var(--app-space-card)]">
                 <div className="flex items-center justify-between mb-[var(--app-space-label-gap)]">
-                  <Link href={`/posts/${post.id}`}>
+                  <Link href={post.status === 'DRAFT' ? `/posts/${post.id}/edit` : `/posts/${post.id}`}>
                     <h3 className="text-xl font-semibold hover:text-[var(--app-color-link-hover)] cursor-pointer">{post.title}</h3>
                   </Link>
-                  {post.status === 'DRAFT' && (
-                    <span className="rounded-app bg-[var(--app-color-accent)] px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] text-xs font-medium text-[var(--app-color-accent-foreground)]">
-                      Draft
-                    </span>
-                  )}
+                  <div className="flex items-center gap-[var(--app-space-control-gap)]">
+                    {post.status === 'DRAFT' && (
+                      <span className="rounded-app bg-[var(--app-color-accent)] px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] text-xs font-medium text-[var(--app-color-accent-foreground)]">
+                        Draft
+                      </span>
+                    )}
+                    {post.status === 'PUBLISHED' && (
+                      <span className="rounded-app bg-green-500 px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] text-xs font-medium text-white">
+                        Published
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPostToDelete(post)
+                        setDeleteConfirmOpen(true)
+                      }}
+                      className="flex h-8 w-8 items-center justify-center rounded-app text-red-500 hover:bg-red-50 hover:text-red-700"
+                      aria-label={`Delete post "${post.title}"`}
+                    >
+                      <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
                 <p className="whitespace-pre-wrap">
                   {limitWords(post.content, postPreviewWordLimit)}
@@ -246,6 +291,45 @@ export default function Home() {
               }}
               className="mt-[var(--app-space-label-gap)] w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-dashboard)] bg-[var(--app-color-dashboard-bg)] p-[var(--app-space-control-y)] text-[var(--app-color-text-primary)]"
             />
+          </div>
+        </div>
+      )}
+
+      {deleteConfirmOpen && postToDelete && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--app-color-overlay-scrim)] p-[var(--app-space-overlay)]"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="delete-confirm-title"
+        >
+          <div className="w-full max-w-[var(--app-size-modal-max)] rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-dashboard)] bg-[var(--app-color-dashboard-surface)] p-[var(--app-space-modal)] text-[var(--app-color-text-primary)] shadow-xl">
+            <div className="mb-[var(--app-space-stack)]">
+              <h2 id="delete-confirm-title" className="text-xl font-semibold">
+                Delete Post
+              </h2>
+            </div>
+            <p className="mb-[var(--app-space-stack)] text-[var(--app-color-text-primary)]">
+              Are you sure you want to delete &ldquo;{postToDelete.title}&rdquo;? This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-[var(--app-space-control-gap)]">
+              <button
+                type="button"
+                onClick={() => {
+                  setDeleteConfirmOpen(false)
+                  setPostToDelete(null)
+                }}
+                className="rounded-app px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] text-sm font-medium text-[var(--app-color-text-primary)] hover:bg-[var(--app-color-dashboard-border)]"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => deletePost(postToDelete)}
+                className="rounded-app bg-red-500 px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] text-sm font-medium text-white hover:bg-red-600"
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}
