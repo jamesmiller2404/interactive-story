@@ -37,16 +37,16 @@ export default function ChapterPage({ params }: { params: Promise<{ id: string }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#020617] text-[#e2e4ec]">
-        <div className="max-w-4xl mx-auto p-8">Loading chapter...</div>
+      <div className="min-h-screen bg-[var(--app-color-reader-bg)] text-[var(--app-color-reader-text)]">
+        <div className="max-w-[var(--app-size-dashboard-content-max)] mx-auto p-[var(--app-space-dashboard-page)]">Loading chapter...</div>
       </div>
     )
   }
 
   if (!chapter) {
     return (
-      <div className="min-h-screen bg-[#020617] text-[#e2e4ec]">
-        <div className="max-w-4xl mx-auto p-8">
+      <div className="min-h-screen bg-[var(--app-color-reader-bg)] text-[var(--app-color-reader-text)]">
+        <div className="max-w-[var(--app-size-dashboard-content-max)] mx-auto p-[var(--app-space-dashboard-page)]">
           <h1 className="text-2xl font-bold">Chapter not found</h1>
           <p>The chapter you are looking for does not exist.</p>
         </div>
@@ -55,19 +55,19 @@ export default function ChapterPage({ params }: { params: Promise<{ id: string }
   }
 
   return (
-    <div className="min-h-screen bg-[#020617] text-[#e2e4ec]">
-      <article className="max-w-2xl mx-auto px-4 py-12 font-serif leading-relaxed">
-        <header className="mb-8">
+    <div className="min-h-screen bg-[var(--app-color-reader-bg)] text-[var(--app-color-reader-text)]">
+      <article className="max-w-[var(--app-size-reader-content-max)] mx-auto px-[var(--app-space-reader-x)] py-[var(--app-space-reader-y)] font-serif leading-relaxed">
+        <header className="mb-[var(--app-space-section)]">
           <Link
             href="/"
-            className="mb-8 inline-flex rounded-app bg-[#111525] px-4 py-2 font-sans text-sm font-medium text-[#e2e4ec] transition hover:bg-[#1b2136]"
+            className="mb-[var(--app-space-section)] inline-flex rounded-app bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium text-[var(--app-color-reader-text)] transition hover:bg-[var(--app-color-reader-surface-hover)]"
           >
             Dashboard
           </Link>
-          <h1 className="text-4xl font-bold font-sans mb-4 leading-tight">
+          <h1 className="text-4xl font-bold font-sans mb-[var(--app-space-card)] leading-tight">
             {chapter.title}
           </h1>
-          <div className="text-sm text-slate-300 border-b border-slate-700 pb-4">
+          <div className="text-sm text-[var(--app-color-reader-muted)] border-b border-[var(--app-color-reader-border)] pb-[var(--app-space-card)]">
             <time dateTime={new Date(chapter.createdAt).toISOString()}>
               {new Date(chapter.createdAt).toLocaleDateString('en-US', {
                 year: 'numeric',
@@ -84,7 +84,7 @@ export default function ChapterPage({ params }: { params: Promise<{ id: string }
           </div>
         </div>
 
-        <footer className="mt-12 pt-8 border-t border-slate-700 text-sm text-slate-300">
+        <footer className="mt-[var(--app-space-reader-footer-margin)] pt-[var(--app-space-reader-footer-top)] border-t border-[var(--app-color-reader-border)] text-sm text-[var(--app-color-reader-muted)]">
           <p>Published on {new Date(chapter.updatedAt).toLocaleDateString()}</p>
         </footer>
       </article>

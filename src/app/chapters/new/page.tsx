@@ -36,32 +36,32 @@ export default function NewArticlePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#020617] text-[#e2e4ec]">
-      <main className="max-w-2xl mx-auto px-4 py-12 font-serif leading-relaxed">
-        <header className="mb-8">
+    <div className="min-h-screen bg-[var(--app-color-reader-bg)] text-[var(--app-color-reader-text)]">
+      <main className="max-w-[var(--app-size-reader-content-max)] mx-auto px-[var(--app-space-reader-x)] py-[var(--app-space-reader-y)] font-serif leading-relaxed">
+        <header className="mb-[var(--app-space-section)]">
           <Link
             href="/"
-            className="mb-8 inline-flex rounded-app bg-[#111525] px-4 py-2 font-sans text-sm font-medium text-[#e2e4ec] transition hover:bg-[#1b2136]"
+            className="mb-[var(--app-space-section)] inline-flex rounded-app bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium text-[var(--app-color-reader-text)] transition hover:bg-[var(--app-color-reader-surface-hover)]"
           >
             Dashboard
           </Link>
-          <h1 className="text-4xl font-bold font-sans mb-4 leading-tight">
+          <h1 className="text-4xl font-bold font-sans mb-[var(--app-space-card)] leading-tight">
             New Article
           </h1>
-          <div className="border-b border-slate-700 pb-4 text-sm text-slate-300">
+          <div className="border-b border-[var(--app-color-reader-border)] pb-[var(--app-space-card)] text-sm text-[var(--app-color-reader-muted)]">
             Create a new post
           </div>
         </header>
 
         {error && (
-          <div className="mb-6 rounded-app border border-red-400 bg-red-950/50 p-3 font-sans text-sm text-red-100">
+          <div className="mb-[var(--app-space-stack)] rounded-app border border-[var(--app-color-error-dark-border)] bg-[var(--app-color-error-dark-bg)] p-[var(--app-space-menu-item-x)] font-sans text-sm text-[var(--app-color-error-dark-text)]">
             {error}
           </div>
         )}
 
-        <form onSubmit={createArticle} className="space-y-6">
+        <form onSubmit={createArticle} className="space-y-[var(--app-space-stack)]">
           <div>
-            <label className="mb-2 block font-sans text-sm font-medium" htmlFor="article-title">
+            <label className="mb-[var(--app-space-label-gap)] block font-sans text-sm font-medium" htmlFor="article-title">
               Chapter Title
             </label>
             <input
@@ -69,20 +69,20 @@ export default function NewArticlePage() {
               type="text"
               value={title}
               onChange={(event) => setTitle(event.target.value)}
-              className="w-full rounded-app border border-slate-700 bg-[#111525] px-4 py-3 font-sans text-[#e2e4ec] outline-none placeholder:text-slate-500 focus:border-slate-400"
+              className="w-full rounded-app border border-[var(--app-color-reader-border)] bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] font-sans text-[var(--app-color-reader-text)] outline-none placeholder:text-[var(--app-color-reader-placeholder)] focus:border-[var(--app-color-reader-focus)]"
               required
             />
           </div>
 
           <div>
-            <label className="mb-2 block font-sans text-sm font-medium" htmlFor="article-content">
+            <label className="mb-[var(--app-space-label-gap)] block font-sans text-sm font-medium" htmlFor="article-content">
               Chapter Content
             </label>
             <textarea
               id="article-content"
               value={content}
               onChange={(event) => setContent(event.target.value)}
-              className="min-h-96 w-full rounded-app border border-slate-700 bg-[#111525] px-4 py-3 text-lg leading-8 text-[#e2e4ec] outline-none placeholder:text-slate-500 focus:border-slate-400"
+              className="min-h-[var(--app-size-editor-min-height)] w-full rounded-app border border-[var(--app-color-reader-border)] bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] text-lg leading-8 text-[var(--app-color-reader-text)] outline-none placeholder:text-[var(--app-color-reader-placeholder)] focus:border-[var(--app-color-reader-focus)]"
               required
             />
           </div>
@@ -90,7 +90,7 @@ export default function NewArticlePage() {
           <button
             type="submit"
             disabled={saving}
-            className="rounded-app bg-[#111525] px-4 py-2 font-sans text-sm font-medium text-[#e2e4ec] transition hover:bg-[#1b2136] disabled:opacity-50"
+            className="rounded-app bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium text-[var(--app-color-reader-text)] transition hover:bg-[var(--app-color-reader-surface-hover)] disabled:opacity-50"
           >
             {saving ? 'Creating...' : 'Create Article'}
           </button>
