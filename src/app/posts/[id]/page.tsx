@@ -114,11 +114,7 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
           </h1>
           <div className="text-sm text-[var(--app-color-reader-muted)] [border-bottom:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] pb-[var(--app-space-card)]">
             <time dateTime={new Date(post.createdAt).toISOString()}>
-              {new Date(post.createdAt).toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-              })}
+              {new Date(post.createdAt).toLocaleString()}
             </time>
           </div>
         </header>
@@ -130,8 +126,8 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
         <footer className="mt-[var(--app-space-reader-footer-margin)] pt-[var(--app-space-reader-footer-top)] [border-top:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] text-sm text-[var(--app-color-reader-muted)]">
           <p>
             {post.status === 'PUBLISHED'
-              ? `Published on ${new Date(post.updatedAt).toLocaleDateString()}`
-              : `Draft last updated on ${new Date(post.updatedAt).toLocaleDateString()}`
+              ? `Published on ${new Date(post.updatedAt).toLocaleString()}`
+              : `Draft last updated on ${new Date(post.updatedAt).toLocaleString()}`
             }
           </p>
         </footer>

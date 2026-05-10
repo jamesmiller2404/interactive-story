@@ -204,6 +204,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
           </h1>
           <div className="[border-bottom:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] pb-[var(--app-space-card)] text-sm text-[var(--app-color-reader-muted)]">
             Edit your draft post
+            <div>Last edited: {new Date(post.updatedAt).toLocaleString()}</div>
             {saveStatus === 'error' && <span className="ml-4 text-[var(--app-color-error-dark-text)]">Failed to save draft</span>}
           </div>
         </header>
@@ -232,6 +233,61 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
             <label className="mb-[var(--app-space-label-gap)] block font-sans text-sm font-medium" htmlFor="article-content">
               Post Content
             </label>
+            {editor && (
+              <div className="mb-2 flex gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().toggleBold().run()}
+                  className={`rounded-app px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium ${
+                    editor.isActive('bold')
+                      ? 'bg-[var(--app-color-accent)] text-[var(--app-color-accent-foreground)]'
+                      : 'bg-[var(--app-color-reader-surface)] text-[var(--app-color-reader-text)] hover:bg-[var(--app-color-reader-surface-hover)]'
+                  }`}
+                >
+                  <strong>B</strong>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().toggleItalic().run()}
+                  className={`rounded-app px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium ${
+                    editor.isActive('italic')
+                      ? 'bg-[var(--app-color-accent)] text-[var(--app-color-accent-foreground)]'
+                      : 'bg-[var(--app-color-reader-surface)] text-[var(--app-color-reader-text)] hover:bg-[var(--app-color-reader-surface-hover)]'
+                  }`}
+                >
+                  <em>I</em>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().toggleBlockquote().run()}
+                  className={`rounded-app px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium ${
+                    editor.isActive('blockquote')
+                      ? 'bg-[var(--app-color-accent)] text-[var(--app-color-accent-foreground)]'
+                      : 'bg-[var(--app-color-reader-surface)] text-[var(--app-color-reader-text)] hover:bg-[var(--app-color-reader-surface-hover)]'
+                  }`}
+                >
+                  &ldquo;
+                </button>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+                  className={`rounded-app px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium ${
+                    editor.isActive('codeBlock')
+                      ? 'bg-[var(--app-color-accent)] text-[var(--app-color-accent-foreground)]'
+                      : 'bg-[var(--app-color-reader-surface)] text-[var(--app-color-reader-text)] hover:bg-[var(--app-color-reader-surface-hover)]'
+                  }`}
+                >
+                  &lt;/&gt;
+                </button>
+                <button
+                  type="button"
+                  onClick={() => editor.chain().focus().setHorizontalRule().run()}
+                  className="rounded-app px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium bg-[var(--app-color-reader-surface)] text-[var(--app-color-reader-text)] hover:bg-[var(--app-color-reader-surface-hover)]"
+                >
+                  ―
+                </button>
+              </div>
+            )}
             <EditorContent
               editor={editor}
               className="min-h-[var(--app-size-editor-min-height)] w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] text-lg text-[var(--app-color-reader-text)] outline-none focus-within:[border-color:var(--app-border-reader-focus)] [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[var(--app-size-editor-min-height)] [&_.ProseMirror]:text-lg [&_.ProseMirror]:text-[var(--app-color-reader-text)]"

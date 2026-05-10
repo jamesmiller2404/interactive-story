@@ -288,7 +288,7 @@ export default function Home() {
                 </div>
                 <p className="whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: limitHtmlWords(post.content, postPreviewWordLimit) }} />
                 <p className="text-sm text-[var(--app-color-text-muted)] mt-[var(--app-space-label-gap)]">
-                  Created: {new Date(post.createdAt).toLocaleDateString()}
+                  Created: {new Date(post.createdAt).toLocaleString()}
                 </p>
               </div>
             ))}
