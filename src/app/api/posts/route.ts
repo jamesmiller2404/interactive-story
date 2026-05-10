@@ -15,11 +15,19 @@ export async function GET() {
   }
 }
 
+function generateTitle() {
+  const now = new Date()
+  const dateStr = now.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
+  const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })
+  return `Untitled ${dateStr}, ${timeStr}`
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { title, content, status } = await request.json()
+    const finalTitle = title && title.trim() ? title : generateTitle()
     const post = await prisma.post.create({
-      data: { title, content, status: status || 'DRAFT' }
+      data: { title: finalTitle, content, status: status || 'DRAFT' }
     })
     return NextResponse.json(post, { status: 201 })
   } catch (error) {
@@ -31,9 +39,14 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const { id, title, content, status } = await request.json()
+    const finalTitle = title !== undefined && title.trim() ? title : title === '' ? generateTitle() : undefined
+    const updateData: { title?: string; content?: string; status?: string } = {}
+    if (finalTitle !== undefined) updateData.title = finalTitle
+    if (content !== undefined) updateData.content = content
+    if (status !== undefined) updateData.status = status
     const post = await prisma.post.update({
       where: { id },
-      data: { title, content, status }
+      data: updateData
     })
     return NextResponse.json(post)
   } catch (error) {

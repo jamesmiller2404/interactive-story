@@ -63,7 +63,7 @@ function useAutoSave(id: number, title: string, content: string) {
       const res = await fetch('/api/posts', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, status: 'PUBLISHED' })
+        body: JSON.stringify({ id, title, content, status: 'PUBLISHED' })
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
@@ -77,7 +77,7 @@ function useAutoSave(id: number, title: string, content: string) {
       setSaveStatus('error')
       throw error
     }
-  }, [id])
+  }, [id, title, content])
 
   return { saveStatus, publishDraft }
 }
