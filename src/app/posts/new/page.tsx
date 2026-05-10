@@ -16,7 +16,7 @@ function useAutoSave(title: string, content: string) {
     const startTime = Date.now()
     setSaveStatus('saving')
     try {
-      const payload = { title, content, status: 'PUBLISHED' }
+      const payload = { title, content, status: 'DRAFT' }
       let res: Response
       if (draftId) {
         res = await fetch('/api/posts', {

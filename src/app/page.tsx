@@ -76,29 +76,29 @@ export default function Home() {
     () => DEFAULT_POST_PREVIEW_WORD_LIMIT
   )
 
-  const fetchPosts = async () => {
-    try {
-      const res = await fetch('/api/posts')
-      const data = await res.json()
-
-      if (!res.ok) {
-        throw new Error(data.error ?? 'Failed to load posts')
-      }
-
-      if (!Array.isArray(data)) {
-        throw new Error('Post API returned an invalid response')
-      }
-
-      setPosts(data)
-      setError('')
-    } catch (error) {
-      console.error('Failed to load posts:', error)
-      setPosts([])
-      setError(error instanceof Error ? error.message : 'Failed to load posts')
-    }
-  }
-
   useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const res = await fetch('/api/posts')
+        const data = await res.json()
+
+        if (!res.ok) {
+          throw new Error(data.error ?? 'Failed to load posts')
+        }
+
+        if (!Array.isArray(data)) {
+          throw new Error('Post API returned an invalid response')
+        }
+
+        setPosts(data)
+        setError('')
+      } catch (error) {
+        console.error('Failed to load posts:', error)
+        setPosts([])
+        setError(error instanceof Error ? error.message : 'Failed to load posts')
+      }
+    }
+
     fetchPosts()
   }, [])
 
@@ -189,9 +189,16 @@ export default function Home() {
           <div className="space-y-[var(--app-space-stack)]">
             {posts.map((post) => (
               <div key={post.id} className="rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-dashboard-panel)] bg-[var(--app-color-dashboard-panel)] p-[var(--app-space-card)]">
-                <Link href={`/posts/${post.id}`}>
-                  <h3 className="text-xl font-semibold mb-[var(--app-space-label-gap)] hover:text-[var(--app-color-link-hover)] cursor-pointer">{post.title}</h3>
-                </Link>
+                <div className="flex items-center justify-between mb-[var(--app-space-label-gap)]">
+                  <Link href={`/posts/${post.id}`}>
+                    <h3 className="text-xl font-semibold hover:text-[var(--app-color-link-hover)] cursor-pointer">{post.title}</h3>
+                  </Link>
+                  {post.status === 'DRAFT' && (
+                    <span className="rounded-app bg-[var(--app-color-accent)] px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] text-xs font-medium text-[var(--app-color-accent-foreground)]">
+                      Draft
+                    </span>
+                  )}
+                </div>
                 <p className="whitespace-pre-wrap">
                   {limitWords(post.content, postPreviewWordLimit)}
                 </p>

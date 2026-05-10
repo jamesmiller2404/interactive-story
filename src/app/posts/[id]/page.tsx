@@ -7,6 +7,7 @@ interface Post {
   id: number
   title: string
   content: string
+  status: string
   createdAt: string
   updatedAt: string
 }
@@ -58,12 +59,22 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
     <div className="min-h-screen bg-[var(--app-color-reader-bg)] text-[var(--app-color-reader-text)]">
       <article className="max-w-[var(--app-size-reader-content-max)] mx-auto px-[var(--app-space-reader-x)] py-[var(--app-space-reader-y)] font-serif leading-relaxed">
         <header className="mb-[var(--app-space-section)]">
-          <Link
-            href="/"
-            className="mb-[var(--app-space-section)] inline-flex rounded-app bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium text-[var(--app-color-reader-text)] transition hover:bg-[var(--app-color-reader-surface-hover)]"
-          >
-            Dashboard
-          </Link>
+          <div className="mb-[var(--app-space-section)] flex gap-2">
+            <Link
+              href="/"
+              className="inline-flex rounded-app bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium text-[var(--app-color-reader-text)] transition hover:bg-[var(--app-color-reader-surface-hover)]"
+            >
+              Dashboard
+            </Link>
+            {post.status === 'DRAFT' && (
+              <Link
+                href={`/posts/${post.id}/edit`}
+                className="inline-flex rounded-app bg-[var(--app-color-accent)] px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium text-[var(--app-color-accent-foreground)] transition hover:bg-[var(--app-color-accent-hover)]"
+              >
+                Edit Draft
+              </Link>
+            )}
+          </div>
           <h1 className="text-4xl font-bold font-sans mb-[var(--app-space-card)] leading-tight">
             {post.title}
           </h1>
