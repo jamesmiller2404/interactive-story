@@ -240,6 +240,44 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                 setContent(event.currentTarget.innerHTML)
                 setWordCount(countWords(event.currentTarget.innerHTML))
               }}
+              onPaste={(event) => {
+                event.preventDefault()
+                const html = event.clipboardData?.getData('text/html')
+                const text = event.clipboardData?.getData('text/plain')
+
+                const selection = window.getSelection()
+                if (selection && selection.rangeCount > 0) {
+                  const range = selection.getRangeAt(0)
+                  if (html) {
+                    const fragment = document.createDocumentFragment()
+                    const tempDiv = document.createElement('div')
+                    tempDiv.innerHTML = html
+                    while (tempDiv.firstChild) {
+                      fragment.appendChild(tempDiv.firstChild)
+                    }
+                    range.deleteContents()
+                    range.insertNode(fragment)
+                  } else if (text) {
+                    range.deleteContents()
+                    range.insertNode(document.createTextNode(text))
+                  }
+                } else {
+                  // Fallback for when no selection exists
+                  if (html) {
+                    document.execCommand('insertHTML', false, html)
+                  } else if (text) {
+                    document.execCommand('insertText', false, text)
+                  }
+                }
+
+                // Update content after paste
+                setTimeout(() => {
+                  if (contentRef.current) {
+                    setContent(contentRef.current.innerHTML)
+                    setWordCount(countWords(contentRef.current.innerHTML))
+                  }
+                }, 0)
+              }}
               className="edit-content min-h-[var(--app-size-editor-min-height)] rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] text-lg leading-8 text-[var(--app-color-reader-text)] outline-none placeholder:text-[var(--app-color-reader-placeholder)] focus:[border-color:var(--app-border-reader-focus)]"
             />
           </div>
@@ -252,14 +290,13 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
             Publish
           </button>
         </div>
-        <footer className="mt-[var(--app-space-reader-footer-top)] bg-[var(--app-color-reader-surface)] [border-top:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] p-[var(--app-space-reader-footer-margin)] text-sm text-[var(--app-color-reader-muted)]">
-          <div className="max-w-[var(--app-size-reader-content-max)] mx-auto">
-            Word count: {wordCount}
-          </div>
-        </footer>
       </main>
 
-
+      <footer className="sticky bottom-0 bg-[var(--app-color-reader-surface)] [border-top:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] py-1 px-2 text-sm text-[var(--app-color-reader-muted)]">
+        <div className="max-w-[var(--app-size-reader-content-max)] mx-auto">
+          Word count: {wordCount}
+        </div>
+      </footer>
     </div>
   )
 }
