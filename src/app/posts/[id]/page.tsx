@@ -16,6 +16,7 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
   const { id } = use(params)
   const [post, setPost] = useState<Post | null>(null)
   const [loading, setLoading] = useState(true)
+  const [unpublishing, setUnpublishing] = useState(false)
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -35,6 +36,30 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
     }
     fetchPost()
   }, [id])
+
+  const unpublishPost = async () => {
+    if (!post) return
+    setUnpublishing(true)
+    try {
+      const res = await fetch(`/api/posts/${post.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'DRAFT' })
+      })
+      if (!res.ok) {
+        throw new Error('Failed to unpublish post')
+      }
+      const updatedPost = await res.json()
+      setPost(updatedPost)
+      // Optionally redirect to edit page
+      window.location.href = `/posts/${post.id}/edit`
+    } catch (error) {
+      console.error('Failed to unpublish post:', error)
+      alert('Failed to unpublish post')
+    } finally {
+      setUnpublishing(false)
+    }
+  }
 
   if (loading) {
     return (
@@ -74,6 +99,15 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
                 Edit Draft
               </Link>
             )}
+            {post.status === 'PUBLISHED' && (
+              <button
+                onClick={unpublishPost}
+                disabled={unpublishing}
+                className="inline-flex rounded-app bg-red-600 px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium text-white transition hover:bg-red-700 disabled:opacity-50"
+              >
+                {unpublishing ? 'Unpublishing...' : 'Unpublish'}
+              </button>
+            )}
           </div>
           <h1 className="text-4xl font-bold font-sans mb-[var(--app-space-card)] leading-tight">
             {post.title}
@@ -96,7 +130,12 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
         </div>
 
         <footer className="mt-[var(--app-space-reader-footer-margin)] pt-[var(--app-space-reader-footer-top)] [border-top:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] text-sm text-[var(--app-color-reader-muted)]">
-          <p>Published on {new Date(post.updatedAt).toLocaleDateString()}</p>
+          <p>
+            {post.status === 'PUBLISHED'
+              ? `Published on ${new Date(post.updatedAt).toLocaleDateString()}`
+              : `Draft last updated on ${new Date(post.updatedAt).toLocaleDateString()}`
+            }
+          </p>
         </footer>
       </article>
     </div>

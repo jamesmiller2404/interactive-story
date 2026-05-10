@@ -43,10 +43,10 @@ export async function PUT(
       return NextResponse.json({ error: 'Invalid post id' }, { status: 400 })
     }
 
-    const { title, content } = await request.json()
+    const { title, content, status } = await request.json()
     const post = await prisma.post.update({
       where: { id: postId },
-      data: { title, content }
+      data: { title, content, status }
     })
     return NextResponse.json(post)
   } catch (error) {
