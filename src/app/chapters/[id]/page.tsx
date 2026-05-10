@@ -67,7 +67,7 @@ export default function ChapterPage({ params }: { params: Promise<{ id: string }
           <h1 className="text-4xl font-bold font-sans mb-[var(--app-space-card)] leading-tight">
             {chapter.title}
           </h1>
-          <div className="text-sm text-[var(--app-color-reader-muted)] border-b border-[var(--app-color-reader-border)] pb-[var(--app-space-card)]">
+          <div className="text-sm text-[var(--app-color-reader-muted)] [border-bottom:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] pb-[var(--app-space-card)]">
             <time dateTime={new Date(chapter.createdAt).toISOString()}>
               {new Date(chapter.createdAt).toLocaleDateString('en-US', {
                 year: 'numeric',
@@ -84,7 +84,7 @@ export default function ChapterPage({ params }: { params: Promise<{ id: string }
           </div>
         </div>
 
-        <footer className="mt-[var(--app-space-reader-footer-margin)] pt-[var(--app-space-reader-footer-top)] border-t border-[var(--app-color-reader-border)] text-sm text-[var(--app-color-reader-muted)]">
+        <footer className="mt-[var(--app-space-reader-footer-margin)] pt-[var(--app-space-reader-footer-top)] [border-top:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] text-sm text-[var(--app-color-reader-muted)]">
           <p>Published on {new Date(chapter.updatedAt).toLocaleDateString()}</p>
         </footer>
       </article>

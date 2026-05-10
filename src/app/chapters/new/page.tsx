@@ -48,13 +48,13 @@ export default function NewArticlePage() {
           <h1 className="text-4xl font-bold font-sans mb-[var(--app-space-card)] leading-tight">
             New Article
           </h1>
-          <div className="border-b border-[var(--app-color-reader-border)] pb-[var(--app-space-card)] text-sm text-[var(--app-color-reader-muted)]">
+          <div className="[border-bottom:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] pb-[var(--app-space-card)] text-sm text-[var(--app-color-reader-muted)]">
             Create a new post
           </div>
         </header>
 
         {error && (
-          <div className="mb-[var(--app-space-stack)] rounded-app border border-[var(--app-color-error-dark-border)] bg-[var(--app-color-error-dark-bg)] p-[var(--app-space-menu-item-x)] font-sans text-sm text-[var(--app-color-error-dark-text)]">
+          <div className="mb-[var(--app-space-stack)] rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-error-dark)] bg-[var(--app-color-error-dark-bg)] p-[var(--app-space-menu-item-x)] font-sans text-sm text-[var(--app-color-error-dark-text)]">
             {error}
           </div>
         )}
@@ -69,7 +69,7 @@ export default function NewArticlePage() {
               type="text"
               value={title}
               onChange={(event) => setTitle(event.target.value)}
-              className="w-full rounded-app border border-[var(--app-color-reader-border)] bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] font-sans text-[var(--app-color-reader-text)] outline-none placeholder:text-[var(--app-color-reader-placeholder)] focus:border-[var(--app-color-reader-focus)]"
+              className="w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] font-sans text-[var(--app-color-reader-text)] outline-none placeholder:text-[var(--app-color-reader-placeholder)] focus:[border-color:var(--app-border-reader-focus)]"
               required
             />
           </div>
@@ -82,7 +82,7 @@ export default function NewArticlePage() {
               id="article-content"
               value={content}
               onChange={(event) => setContent(event.target.value)}
-              className="min-h-[var(--app-size-editor-min-height)] w-full rounded-app border border-[var(--app-color-reader-border)] bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] text-lg leading-8 text-[var(--app-color-reader-text)] outline-none placeholder:text-[var(--app-color-reader-placeholder)] focus:border-[var(--app-color-reader-focus)]"
+              className="min-h-[var(--app-size-editor-min-height)] w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] text-lg leading-8 text-[var(--app-color-reader-text)] outline-none placeholder:text-[var(--app-color-reader-placeholder)] focus:[border-color:var(--app-border-reader-focus)]"
               required
             />
           </div>

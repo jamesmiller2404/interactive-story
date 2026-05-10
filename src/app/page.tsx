@@ -101,7 +101,7 @@ export default function Home() {
 
   return (
     <div className="flex min-h-screen bg-[var(--app-color-dashboard-bg)] text-[var(--app-color-text-primary)]">
-      <aside className="flex w-[var(--app-size-sidebar-width)] shrink-0 flex-col border-r border-[var(--app-color-dashboard-border)] bg-[var(--app-color-dashboard-surface)] p-[var(--app-space-sidebar)]">
+      <aside className="flex w-[var(--app-size-sidebar-width)] shrink-0 flex-col [border-right:var(--app-border-width)_var(--app-border-style)_var(--app-border-dashboard)] bg-[var(--app-color-dashboard-surface)] p-[var(--app-space-sidebar)]">
         <h2 className="text-lg font-semibold">Dashboard</h2>
         <div className="relative mt-[var(--app-space-stack)]">
           <button
@@ -114,13 +114,13 @@ export default function Home() {
             <span>Create a Post</span>
             <span
               aria-hidden="true"
-              className="h-0 w-0 border-x-4 border-t-4 border-x-transparent border-t-[var(--app-color-accent-foreground)]"
+              className="h-0 w-0 [border-left:var(--app-border-caret-width)_solid_transparent] [border-right:var(--app-border-caret-width)_solid_transparent] [border-top:var(--app-border-caret-width)_solid_var(--app-color-accent-foreground)]"
             />
           </button>
 
           {createMenuOpen && (
             <div
-              className="absolute left-0 z-10 mt-[var(--app-space-menu-offset)] w-full rounded-app border border-[var(--app-color-dashboard-panel-border)] bg-[var(--app-color-dashboard-panel)] p-[var(--app-space-menu)] shadow-xl"
+              className="absolute left-0 z-10 mt-[var(--app-space-menu-offset)] w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-dashboard-panel)] bg-[var(--app-color-dashboard-panel)] p-[var(--app-space-menu)] shadow-xl"
               role="menu"
             >
               <Link
@@ -161,14 +161,14 @@ export default function Home() {
           </div>
 
           {error && (
-            <div className="mb-[var(--app-space-stack)] rounded-app border border-[var(--app-color-error-border)] bg-[var(--app-color-error-bg)] p-[var(--app-space-menu-item-x)] text-[var(--app-color-error-text)]">
+            <div className="mb-[var(--app-space-stack)] rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-error)] bg-[var(--app-color-error-bg)] p-[var(--app-space-menu-item-x)] text-[var(--app-color-error-text)]">
               {error}
             </div>
           )}
 
           <div className="space-y-[var(--app-space-stack)]">
             {chapters.map((chapter) => (
-              <div key={chapter.id} className="rounded-app border border-[var(--app-color-dashboard-panel-border)] bg-[var(--app-color-dashboard-panel)] p-[var(--app-space-card)]">
+              <div key={chapter.id} className="rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-dashboard-panel)] bg-[var(--app-color-dashboard-panel)] p-[var(--app-space-card)]">
                 <Link href={`/chapters/${chapter.id}`}>
                   <h3 className="text-xl font-semibold mb-[var(--app-space-label-gap)] hover:text-[var(--app-color-link-hover)] cursor-pointer">{chapter.title}</h3>
                 </Link>
@@ -191,7 +191,7 @@ export default function Home() {
           aria-modal="true"
           aria-labelledby="settings-title"
         >
-          <div className="w-full max-w-[var(--app-size-modal-max)] rounded-app border border-[var(--app-color-dashboard-border)] bg-[var(--app-color-dashboard-surface)] p-[var(--app-space-modal)] text-[var(--app-color-text-primary)] shadow-xl">
+          <div className="w-full max-w-[var(--app-size-modal-max)] rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-dashboard)] bg-[var(--app-color-dashboard-surface)] p-[var(--app-space-modal)] text-[var(--app-color-text-primary)] shadow-xl">
             <div className="mb-[var(--app-space-stack)] flex items-center justify-between gap-[var(--app-space-card)]">
               <h2 id="settings-title" className="text-xl font-semibold">
                 Settings
@@ -217,7 +217,7 @@ export default function Home() {
                 const nextLimit = Number(e.target.value)
                 saveChapterPreviewWordLimit(Number.isFinite(nextLimit) && nextLimit > 0 ? Math.floor(nextLimit) : 1)
               }}
-              className="mt-[var(--app-space-label-gap)] w-full rounded-app border border-[var(--app-color-dashboard-border)] bg-[var(--app-color-dashboard-bg)] p-[var(--app-space-control-y)] text-[var(--app-color-text-primary)]"
+              className="mt-[var(--app-space-label-gap)] w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-dashboard)] bg-[var(--app-color-dashboard-bg)] p-[var(--app-space-control-y)] text-[var(--app-color-text-primary)]"
             />
           </div>
         </div>

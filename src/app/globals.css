@@ -2,6 +2,9 @@
 
 :root {
   --app-border-radius: 10px;
+  --app-border-width: 1px;
+  --app-border-style: solid;
+  --app-border-caret-width: 0.25rem;
   --app-size-sidebar-width: 16rem;
   --app-size-dashboard-content-max: 56rem;
   --app-size-reader-content-max: 42rem;
@@ -53,6 +56,12 @@
   --app-color-error-dark-bg: rgb(69 10 10 / 0.5);
   --app-color-error-dark-text: #fee2e2;
   --app-color-error-dark-border: #f87171;
+  --app-border-dashboard: var(--app-color-dashboard-border);
+  --app-border-dashboard-panel: var(--app-color-dashboard-panel-border);
+  --app-border-reader: var(--app-color-reader-border);
+  --app-border-reader-focus: var(--app-color-reader-focus);
+  --app-border-error: var(--app-color-error-border);
+  --app-border-error-dark: var(--app-color-error-dark-border);
   --background: #ffffff;
   --foreground: #171717;
 }
