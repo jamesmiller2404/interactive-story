@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useSyncExternalStore } from 'react'
 import Link from 'next/link'
 
-interface Chapter {
+interface Post {
   id: number
   title: string
   content: string
@@ -11,45 +11,45 @@ interface Chapter {
   updatedAt: string
 }
 
-const DEFAULT_CHAPTER_PREVIEW_WORD_LIMIT = 30
-const CHAPTER_PREVIEW_WORD_LIMIT_KEY = 'chapterPreviewWordLimit'
-const CHAPTER_PREVIEW_WORD_LIMIT_EVENT = 'chapter-preview-word-limit-change'
+const DEFAULT_POST_PREVIEW_WORD_LIMIT = 30
+const POST_PREVIEW_WORD_LIMIT_KEY = 'postPreviewWordLimit'
+const POST_PREVIEW_WORD_LIMIT_EVENT = 'post-preview-word-limit-change'
 
-function getStoredChapterPreviewWordLimit() {
+function getStoredPostPreviewWordLimit() {
   if (typeof window === 'undefined') {
-    return DEFAULT_CHAPTER_PREVIEW_WORD_LIMIT
+    return DEFAULT_POST_PREVIEW_WORD_LIMIT
   }
 
-  const storedValue = Number(window.localStorage.getItem(CHAPTER_PREVIEW_WORD_LIMIT_KEY))
+  const storedValue = Number(window.localStorage.getItem(POST_PREVIEW_WORD_LIMIT_KEY))
 
   if (!Number.isFinite(storedValue) || storedValue < 1) {
-    return DEFAULT_CHAPTER_PREVIEW_WORD_LIMIT
+    return DEFAULT_POST_PREVIEW_WORD_LIMIT
   }
 
   return Math.floor(storedValue)
 }
 
-function subscribeToChapterPreviewWordLimit(callback: () => void) {
+function subscribeToPostPreviewWordLimit(callback: () => void) {
   if (typeof window === 'undefined') {
     return () => {}
   }
 
   window.addEventListener('storage', callback)
-  window.addEventListener(CHAPTER_PREVIEW_WORD_LIMIT_EVENT, callback)
+  window.addEventListener(POST_PREVIEW_WORD_LIMIT_EVENT, callback)
 
   return () => {
     window.removeEventListener('storage', callback)
-    window.removeEventListener(CHAPTER_PREVIEW_WORD_LIMIT_EVENT, callback)
+    window.removeEventListener(POST_PREVIEW_WORD_LIMIT_EVENT, callback)
   }
 }
 
-function saveChapterPreviewWordLimit(wordLimit: number) {
+function savePostPreviewWordLimit(wordLimit: number) {
   if (typeof window === 'undefined') {
     return
   }
 
-  window.localStorage.setItem(CHAPTER_PREVIEW_WORD_LIMIT_KEY, String(wordLimit))
-  window.dispatchEvent(new Event(CHAPTER_PREVIEW_WORD_LIMIT_EVENT))
+  window.localStorage.setItem(POST_PREVIEW_WORD_LIMIT_KEY, String(wordLimit))
+  window.dispatchEvent(new Event(POST_PREVIEW_WORD_LIMIT_EVENT))
 }
 
 function limitWords(text: string, wordLimit: number) {
@@ -63,42 +63,42 @@ function limitWords(text: string, wordLimit: number) {
 }
 
 export default function Home() {
-  const [chapters, setChapters] = useState<Chapter[]>([])
+  const [posts, setPosts] = useState<Post[]>([])
   const [error, setError] = useState('')
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [createMenuOpen, setCreateMenuOpen] = useState(false)
   const createButtonRef = useRef<HTMLButtonElement>(null)
   const createMenuRef = useRef<HTMLDivElement>(null)
-  const chapterPreviewWordLimit = useSyncExternalStore(
-    subscribeToChapterPreviewWordLimit,
-    getStoredChapterPreviewWordLimit,
-    () => DEFAULT_CHAPTER_PREVIEW_WORD_LIMIT
+  const postPreviewWordLimit = useSyncExternalStore(
+    subscribeToPostPreviewWordLimit,
+    getStoredPostPreviewWordLimit,
+    () => DEFAULT_POST_PREVIEW_WORD_LIMIT
   )
 
-  const fetchChapters = async () => {
+  const fetchPosts = async () => {
     try {
-      const res = await fetch('/api/chapters')
+      const res = await fetch('/api/posts')
       const data = await res.json()
 
       if (!res.ok) {
-        throw new Error(data.error ?? 'Failed to load chapters')
+        throw new Error(data.error ?? 'Failed to load posts')
       }
 
       if (!Array.isArray(data)) {
-        throw new Error('Chapter API returned an invalid response')
+        throw new Error('Post API returned an invalid response')
       }
 
-      setChapters(data)
+      setPosts(data)
       setError('')
     } catch (error) {
-      console.error('Failed to load chapters:', error)
-      setChapters([])
-      setError(error instanceof Error ? error.message : 'Failed to load chapters')
+      console.error('Failed to load posts:', error)
+      setPosts([])
+      setError(error instanceof Error ? error.message : 'Failed to load posts')
     }
   }
 
   useEffect(() => {
-    fetchChapters()
+    fetchPosts()
   }, [])
 
   useEffect(() => {
@@ -145,7 +145,7 @@ export default function Home() {
               role="menu"
             >
               <Link
-                href="/chapters/new"
+                href="/posts/new"
                 className="block rounded-app px-[var(--app-space-menu-item-x)] py-[var(--app-space-menu-item-y)] text-sm text-[var(--app-color-text-primary)] hover:bg-[var(--app-color-dashboard-border)]"
                 role="menuitem"
               >
@@ -186,16 +186,16 @@ export default function Home() {
           )}
 
           <div className="space-y-[var(--app-space-stack)]">
-            {chapters.map((chapter) => (
-              <div key={chapter.id} className="rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-dashboard-panel)] bg-[var(--app-color-dashboard-panel)] p-[var(--app-space-card)]">
-                <Link href={`/chapters/${chapter.id}`}>
-                  <h3 className="text-xl font-semibold mb-[var(--app-space-label-gap)] hover:text-[var(--app-color-link-hover)] cursor-pointer">{chapter.title}</h3>
+            {posts.map((post) => (
+              <div key={post.id} className="rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-dashboard-panel)] bg-[var(--app-color-dashboard-panel)] p-[var(--app-space-card)]">
+                <Link href={`/posts/${post.id}`}>
+                  <h3 className="text-xl font-semibold mb-[var(--app-space-label-gap)] hover:text-[var(--app-color-link-hover)] cursor-pointer">{post.title}</h3>
                 </Link>
                 <p className="whitespace-pre-wrap">
-                  {limitWords(chapter.content, chapterPreviewWordLimit)}
+                  {limitWords(post.content, postPreviewWordLimit)}
                 </p>
                 <p className="text-sm text-[var(--app-color-text-muted)] mt-[var(--app-space-label-gap)]">
-                  Created: {new Date(chapter.createdAt).toLocaleDateString()}
+                  Created: {new Date(post.createdAt).toLocaleDateString()}
                 </p>
               </div>
             ))}
@@ -224,17 +224,17 @@ export default function Home() {
                 &times;
               </button>
             </div>
-            <label className="block text-sm font-medium text-[var(--app-color-text-primary)]" htmlFor="chapter-preview-word-limit">
-              Chapter preview word limit
+            <label className="block text-sm font-medium text-[var(--app-color-text-primary)]" htmlFor="post-preview-word-limit">
+              Post preview word limit
             </label>
             <input
-              id="chapter-preview-word-limit"
+              id="post-preview-word-limit"
               type="number"
               min="1"
-              value={chapterPreviewWordLimit}
+              value={postPreviewWordLimit}
               onChange={(e) => {
                 const nextLimit = Number(e.target.value)
-                saveChapterPreviewWordLimit(Number.isFinite(nextLimit) && nextLimit > 0 ? Math.floor(nextLimit) : 1)
+                savePostPreviewWordLimit(Number.isFinite(nextLimit) && nextLimit > 0 ? Math.floor(nextLimit) : 1)
               }}
               className="mt-[var(--app-space-label-gap)] w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-dashboard)] bg-[var(--app-color-dashboard-bg)] p-[var(--app-space-control-y)] text-[var(--app-color-text-primary)]"
             />

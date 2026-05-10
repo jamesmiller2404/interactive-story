@@ -15,7 +15,7 @@ export default function NewArticlePage() {
     setError('')
 
     try {
-      const res = await fetch('/api/chapters', {
+      const res = await fetch('/api/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title, content })
@@ -26,7 +26,7 @@ export default function NewArticlePage() {
         throw new Error(data.error ?? 'Failed to create article')
       }
 
-      window.location.href = `/chapters/${data.id}`
+      window.location.href = `/posts/${data.id}`
     } catch (error) {
       console.error('Failed to create article:', error)
       setError(error instanceof Error ? error.message : 'Failed to create article')
@@ -62,7 +62,7 @@ export default function NewArticlePage() {
         <form onSubmit={createArticle} className="space-y-[var(--app-space-stack)]">
           <div>
             <label className="mb-[var(--app-space-label-gap)] block font-sans text-sm font-medium" htmlFor="article-title">
-              Chapter Title
+              Post Title
             </label>
             <input
               id="article-title"
@@ -76,7 +76,7 @@ export default function NewArticlePage() {
 
           <div>
             <label className="mb-[var(--app-space-label-gap)] block font-sans text-sm font-medium" htmlFor="article-content">
-              Chapter Content
+              Post Content
             </label>
             <textarea
               id="article-content"
