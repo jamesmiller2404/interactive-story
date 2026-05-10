@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useSyncExternalStore } from 'react'
+import { useState, useEffect, useRef, useSyncExternalStore } from 'react'
 import Link from 'next/link'
 
 interface Chapter {
@@ -67,6 +67,8 @@ export default function Home() {
   const [error, setError] = useState('')
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [createMenuOpen, setCreateMenuOpen] = useState(false)
+  const createButtonRef = useRef<HTMLButtonElement>(null)
+  const createMenuRef = useRef<HTMLDivElement>(null)
   const chapterPreviewWordLimit = useSyncExternalStore(
     subscribeToChapterPreviewWordLimit,
     getStoredChapterPreviewWordLimit,
@@ -99,12 +101,30 @@ export default function Home() {
     fetchChapters()
   }, [])
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        createMenuOpen &&
+        createButtonRef.current &&
+        createMenuRef.current &&
+        !createButtonRef.current.contains(event.target as Node) &&
+        !createMenuRef.current.contains(event.target as Node)
+      ) {
+        setCreateMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [createMenuOpen])
+
   return (
     <div className="flex min-h-screen bg-[var(--app-color-dashboard-bg)] text-[var(--app-color-text-primary)]">
       <aside className="flex w-[var(--app-size-sidebar-width)] shrink-0 flex-col [border-right:var(--app-border-width)_var(--app-border-style)_var(--app-border-dashboard)] bg-[var(--app-color-dashboard-surface)] p-[var(--app-space-sidebar)]">
         <h2 className="text-lg font-semibold">Dashboard</h2>
         <div className="relative mt-[var(--app-space-stack)]">
           <button
+            ref={createButtonRef}
             type="button"
             onClick={() => setCreateMenuOpen((open) => !open)}
             className="flex w-full items-center justify-between rounded-app bg-[var(--app-color-accent)] px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] text-sm font-medium text-[var(--app-color-accent-foreground)] hover:bg-[var(--app-color-accent-hover)]"
@@ -120,13 +140,12 @@ export default function Home() {
 
           {createMenuOpen && (
             <div
+              ref={createMenuRef}
               className="absolute left-0 z-10 mt-[var(--app-space-menu-offset)] w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-dashboard-panel)] bg-[var(--app-color-dashboard-panel)] p-[var(--app-space-menu)] shadow-xl"
               role="menu"
             >
               <Link
                 href="/chapters/new"
-                target="_blank"
-                rel="noopener noreferrer"
                 className="block rounded-app px-[var(--app-space-menu-item-x)] py-[var(--app-space-menu-item-y)] text-sm text-[var(--app-color-text-primary)] hover:bg-[var(--app-color-dashboard-border)]"
                 role="menuitem"
               >

@@ -33,7 +33,7 @@
   --app-color-dashboard-surface: #131414;
   --app-color-dashboard-panel: #1b1c1d;
   --app-color-dashboard-border: #2e2f30;
-  --app-color-dashboard-panel-border: #323334;
+  --app-color-dashboard-panel-border: #2e2f30;
   --app-color-text-primary: #eeeeee;
   --app-color-text-muted: #a5a8ad;
   --app-color-accent: #b25c33;
@@ -47,15 +47,15 @@
   --app-color-reader-surface-hover: #1b2136;
   --app-color-reader-text: #e2e4ec;
   --app-color-reader-muted: #cbd5e1;
-  --app-color-reader-border: #334155;
+  --app-color-reader-border: #2e2f30;
   --app-color-reader-placeholder: #64748b;
   --app-color-reader-focus: #94a3b8;
   --app-color-error-bg: #fef2f2;
   --app-color-error-text: #991b1b;
-  --app-color-error-border: #fca5a5;
+  --app-color-error-border: #2e2f30;
   --app-color-error-dark-bg: rgb(69 10 10 / 0.5);
   --app-color-error-dark-text: #fee2e2;
-  --app-color-error-dark-border: #f87171;
+  --app-color-error-dark-border: #2e2f30;
   --app-border-dashboard: var(--app-color-dashboard-border);
   --app-border-dashboard-panel: var(--app-color-dashboard-panel-border);
   --app-border-reader: var(--app-color-reader-border);
