@@ -19,6 +19,7 @@
   --app-space-overlay: 1rem;
   --app-space-control-x: 1rem;
   --app-space-control-y: 0.5rem;
+  --app-space-control-gap: 0.5rem;
   --app-space-field-y: 0.75rem;
   --app-space-menu: 0.25rem;
   --app-space-menu-offset: 0.5rem;
@@ -36,8 +37,8 @@
   --app-color-dashboard-panel-border: #2e2f30;
   --app-color-text-primary: #eeeeee;
   --app-color-text-muted: #a5a8ad;
-  --app-color-accent: #b25c33;
-  --app-color-accent-hover: #c7683b;
+  --app-color-accent: #fa4e00;
+  --app-color-accent-hover: #e04400;
   --app-color-accent-foreground: #ffffff;
   --app-color-link-hover: #60a5fa;
   --app-color-overlay: #000000;

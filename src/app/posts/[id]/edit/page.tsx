@@ -200,10 +200,27 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
             <label className="mb-[var(--app-space-label-gap)] block font-sans text-sm font-medium" htmlFor="article-content">
               Post Content
             </label>
-            <textarea
+            <div className="mb-[var(--app-space-label-gap)] flex gap-2">
+              <button
+                type="button"
+                onClick={() => document.execCommand('bold')}
+                className="rounded-app bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium text-[var(--app-color-reader-text)] hover:bg-[var(--app-color-reader-surface-hover)]"
+              >
+                <strong>B</strong>
+              </button>
+              <button
+                type="button"
+                onClick={() => document.execCommand('italic')}
+                className="rounded-app bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium text-[var(--app-color-reader-text)] hover:bg-[var(--app-color-reader-surface-hover)]"
+              >
+                <em>I</em>
+              </button>
+            </div>
+            <div
               id="article-content"
-              value={content}
-              onChange={(event) => setContent(event.target.value)}
+              contentEditable
+              dangerouslySetInnerHTML={{ __html: content }}
+              onInput={(event) => setContent(event.currentTarget.innerHTML)}
               className="min-h-[var(--app-size-editor-min-height)] w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] text-lg leading-8 text-[var(--app-color-reader-text)] outline-none placeholder:text-[var(--app-color-reader-placeholder)] focus:[border-color:var(--app-border-reader-focus)]"
             />
           </div>

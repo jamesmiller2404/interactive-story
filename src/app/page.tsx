@@ -53,8 +53,13 @@ function savePostPreviewWordLimit(wordLimit: number) {
   window.dispatchEvent(new Event(POST_PREVIEW_WORD_LIMIT_EVENT))
 }
 
+function stripHtmlTags(html: string): string {
+  return html.replace(/<[^>]*>/g, '')
+}
+
 function limitWords(text: string, wordLimit: number) {
-  const words = text.trim().split(/\s+/)
+  const plainText = stripHtmlTags(text)
+  const words = plainText.trim().split(/\s+/)
 
   if (words.length <= wordLimit) {
     return text
@@ -215,9 +220,20 @@ export default function Home() {
             {posts.map((post) => (
               <div key={post.id} className="rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-dashboard-panel)] bg-[var(--app-color-dashboard-panel)] p-[var(--app-space-card)]">
                 <div className="flex items-center justify-between mb-[var(--app-space-label-gap)]">
-                  <Link href={post.status === 'DRAFT' ? `/posts/${post.id}/edit` : `/posts/${post.id}`}>
-                    <h3 className="text-xl font-semibold hover:text-[var(--app-color-link-hover)] cursor-pointer">{post.title}</h3>
-                  </Link>
+                  <div className="flex items-center gap-2">
+                    <Link href={post.status === 'DRAFT' ? `/posts/${post.id}/edit` : `/posts/${post.id}`}>
+                      <h3 className="text-xl font-semibold hover:text-[var(--app-color-link-hover)] cursor-pointer">{post.title}</h3>
+                    </Link>
+                    {post.status === 'DRAFT' && (
+                      <Link
+                        href={`/posts/${post.id}/edit`}
+                        className="flex h-6 w-6 items-center justify-center rounded-app bg-[var(--app-color-accent)] text-xs font-medium text-[var(--app-color-accent-foreground)] hover:bg-[var(--app-color-accent-hover)]"
+                        aria-label={`Edit draft "${post.title}"`}
+                      >
+                        ✏️
+                      </Link>
+                    )}
+                  </div>
                   <div className="flex items-center gap-[var(--app-space-control-gap)]">
                     {post.status === 'DRAFT' && (
                       <span className="rounded-app bg-[var(--app-color-accent)] px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] text-xs font-medium text-[var(--app-color-accent-foreground)]">

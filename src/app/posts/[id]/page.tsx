@@ -124,9 +124,7 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
         </header>
 
         <div className="prose prose-lg max-w-none">
-          <div className="whitespace-pre-wrap text-lg leading-8">
-            {post.content}
-          </div>
+          <div className="text-lg leading-8" dangerouslySetInnerHTML={{ __html: post.content }} />
         </div>
 
         <footer className="mt-[var(--app-space-reader-footer-margin)] pt-[var(--app-space-reader-footer-top)] [border-top:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] text-sm text-[var(--app-color-reader-muted)]">
