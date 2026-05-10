@@ -17,13 +17,27 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
-    const { title, content } = await request.json()
+    const { title, content, status } = await request.json()
     const post = await prisma.post.create({
-      data: { title, content }
+      data: { title, content, status: status || 'DRAFT' }
     })
     return NextResponse.json(post, { status: 201 })
   } catch (error) {
     console.error('Failed to create post:', error)
     return NextResponse.json({ error: 'Failed to create post' }, { status: 500 })
+  }
+}
+
+export async function PUT(request: NextRequest) {
+  try {
+    const { id, title, content, status } = await request.json()
+    const post = await prisma.post.update({
+      where: { id },
+      data: { title, content, status }
+    })
+    return NextResponse.json(post)
+  } catch (error) {
+    console.error('Failed to update post:', error)
+    return NextResponse.json({ error: 'Failed to update post' }, { status: 500 })
   }
 }
