@@ -27,9 +27,13 @@ function parsePostStatus(status: unknown) {
   return Object.values(PostStatus).includes(status as PostStatus) ? status as PostStatus : null
 }
 
+function normalizeSubtitle(subtitle: unknown) {
+  return typeof subtitle === 'string' && subtitle.trim() ? subtitle.trim() : null
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const { title, content, status } = await request.json()
+    const { title, subtitle, content, status } = await request.json()
     const parsedStatus = status === undefined ? PostStatus.DRAFT : parsePostStatus(status)
     if (!parsedStatus) {
       return NextResponse.json({ error: 'Invalid post status' }, { status: 400 })
@@ -37,7 +41,7 @@ export async function POST(request: NextRequest) {
 
     const finalTitle = title && title.trim() ? title : generateTitle()
     const post = await prisma.post.create({
-      data: { title: finalTitle, content, status: parsedStatus }
+      data: { title: finalTitle, subtitle: normalizeSubtitle(subtitle), content, status: parsedStatus }
     })
     return NextResponse.json(post, { status: 201 })
   } catch (error) {
@@ -48,10 +52,11 @@ export async function POST(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const { id, title, content, status } = await request.json()
+    const { id, title, subtitle, content, status } = await request.json()
     const finalTitle = title !== undefined && title.trim() ? title : title === '' ? generateTitle() : undefined
     const updateData: Prisma.PostUpdateInput = {}
     if (finalTitle !== undefined) updateData.title = finalTitle
+    if (subtitle !== undefined) updateData.subtitle = normalizeSubtitle(subtitle)
     if (content !== undefined) updateData.content = content
     if (status !== undefined) {
       const parsedStatus = parsePostStatus(status)

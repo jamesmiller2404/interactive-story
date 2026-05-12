@@ -20,12 +20,12 @@ function countWords(text: string): number {
   return words.length === 1 && words[0] === '' ? 0 : words.length
 }
 
-function useAutoSave(id: number, title: string, content: string) {
+function useAutoSave(id: number, title: string, subtitle: string, content: string) {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle')
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const saveDraft = useCallback(async () => {
-    if (!title.trim() && !content.trim()) return
+    if (!title.trim() && !subtitle.trim() && !content.trim()) return
 
     const startTime = Date.now()
     setSaveStatus('saving')
@@ -34,7 +34,7 @@ function useAutoSave(id: number, title: string, content: string) {
       const res = await fetch('/api/posts', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, title, content: sanitizedContent })
+        body: JSON.stringify({ id, title, subtitle, content: sanitizedContent })
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
@@ -45,7 +45,7 @@ function useAutoSave(id: number, title: string, content: string) {
       console.error('Failed to save draft:', error)
       setSaveStatus('error')
     }
-  }, [id, title, content])
+  }, [id, title, subtitle, content])
 
   useEffect(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current)
@@ -56,7 +56,7 @@ function useAutoSave(id: number, title: string, content: string) {
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
     }
-  }, [title, content, saveDraft])
+  }, [title, subtitle, content, saveDraft])
 
   const publishDraft = useCallback(async () => {
     const startTime = Date.now()
@@ -65,7 +65,7 @@ function useAutoSave(id: number, title: string, content: string) {
       const res = await fetch('/api/posts', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id, title, content, status: 'PUBLISHED' })
+        body: JSON.stringify({ id, title, subtitle, content, status: 'PUBLISHED' })
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error)
@@ -79,7 +79,7 @@ function useAutoSave(id: number, title: string, content: string) {
       setSaveStatus('error')
       throw error
     }
-  }, [id, title, content])
+  }, [id, title, subtitle, content])
 
   return { saveStatus, publishDraft }
 }
@@ -87,6 +87,7 @@ function useAutoSave(id: number, title: string, content: string) {
 interface Post {
   id: number
   title: string
+  subtitle: string | null
   content: string
   status: string
   createdAt: string
@@ -97,6 +98,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   const { id } = use(params)
   const [post, setPost] = useState<Post | null>(null)
   const [title, setTitle] = useState('')
+  const [subtitle, setSubtitle] = useState('')
   const [content, setContent] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -114,7 +116,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
       setWordCount(countWords(html))
     },
   })
-  const { saveStatus, publishDraft } = useAutoSave(Number(id), title, content)
+  const { saveStatus, publishDraft } = useAutoSave(Number(id), title, subtitle, content)
 
   const uploadImage = async (file: File) => {
     if (!editor) return
@@ -169,6 +171,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
         }
         setPost(data)
         setTitle(data.title)
+        setSubtitle(data.subtitle ?? '')
         setContent(data.content)
         setWordCount(countWords(data.content))
       } catch (error) {
@@ -249,7 +252,11 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
           </h1>
           <div className="[border-bottom:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] pb-[var(--app-space-card)] text-sm text-[var(--app-color-reader-muted)]">
             Edit your draft post
-            <div>Last edited: {new Date(post.updatedAt).toLocaleString()}</div>
+            <div className="mt-1 space-y-1">
+              <p>Last edited</p>
+              <p>Date: {new Date(post.updatedAt).toLocaleDateString()}</p>
+              <p>Time: {new Date(post.updatedAt).toLocaleTimeString()}</p>
+            </div>
             {saveStatus === 'error' && <span className="ml-4 text-[var(--app-color-error-dark-text)]">Failed to save draft</span>}
           </div>
         </header>
@@ -270,7 +277,20 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
               type="text"
               value={title}
               onChange={(event) => setTitle(event.target.value)}
-              className="edit-input rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] font-sans text-[var(--app-color-reader-text)] outline-none placeholder:text-[var(--app-color-reader-placeholder)] focus:[border-color:var(--app-border-reader-focus)]"
+              className="edit-input rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[#020617] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] font-sans text-[var(--app-color-reader-text)] outline-none placeholder:text-[var(--app-color-reader-placeholder)] focus:[border-color:var(--app-border-reader-focus)]"
+            />
+          </div>
+
+          <div>
+            <label className="mb-[var(--app-space-label-gap)] block font-sans text-sm font-medium" htmlFor="article-subtitle">
+              Subtitle
+            </label>
+            <input
+              id="article-subtitle"
+              type="text"
+              value={subtitle}
+              onChange={(event) => setSubtitle(event.target.value)}
+              className="edit-input rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[#020617] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] font-sans text-[var(--app-color-reader-text)] outline-none placeholder:text-[var(--app-color-reader-placeholder)] focus:[border-color:var(--app-border-reader-focus)]"
             />
           </div>
 
@@ -356,7 +376,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
             )}
             <EditorContent
               editor={editor}
-              className="min-h-[var(--app-size-editor-min-height)] w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] text-lg text-[var(--app-color-reader-text)] outline-none focus-within:[border-color:var(--app-border-reader-focus)] [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[var(--app-size-editor-min-height)] [&_.ProseMirror]:text-lg [&_.ProseMirror]:text-[var(--app-color-reader-text)]"
+              className="min-h-[var(--app-size-editor-min-height)] w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[#020617] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] text-lg text-[var(--app-color-reader-text)] outline-none focus-within:[border-color:var(--app-border-reader-focus)] [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[var(--app-size-editor-min-height)] [&_.ProseMirror]:text-lg [&_.ProseMirror]:text-[var(--app-color-reader-text)]"
             />
           </div>
 

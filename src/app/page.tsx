@@ -6,6 +6,7 @@ import Link from 'next/link'
 interface Post {
   id: number
   title: string
+  subtitle: string | null
   content: string
   status: string
   createdAt: string
@@ -286,10 +287,16 @@ export default function Home() {
                     </button>
                   </div>
                 </div>
+                {post.subtitle && (
+                  <p className="mb-[var(--app-space-label-gap)] text-sm text-[var(--app-color-text-muted)]">
+                    {post.subtitle}
+                  </p>
+                )}
                 <p className="whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: limitHtmlWords(post.content, postPreviewWordLimit) }} />
-                <p className="text-sm text-[var(--app-color-text-muted)] mt-[var(--app-space-label-gap)]">
-                  Created: {new Date(post.createdAt).toLocaleString()}
-                </p>
+                <div className="mt-[var(--app-space-label-gap)] space-y-1 text-sm text-[var(--app-color-text-muted)]">
+                  <p>Date: {new Date(post.createdAt).toLocaleDateString()}</p>
+                  <p>Time: {new Date(post.createdAt).toLocaleTimeString()}</p>
+                </div>
               </div>
             ))}
           </div>

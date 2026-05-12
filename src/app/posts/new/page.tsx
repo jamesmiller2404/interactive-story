@@ -11,19 +11,19 @@ import { countWords } from '@/utils/countWords'
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 
-function useAutoSave(title: string, content: string) {
+function useAutoSave(title: string, subtitle: string, content: string) {
   const [draftId, setDraftId] = useState<number | null>(null)
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle')
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const saveDraft = useCallback(async () => {
-    if (!title.trim() && !content.trim()) return
+    if (!title.trim() && !subtitle.trim() && !content.trim()) return
 
     const startTime = Date.now()
     setSaveStatus('saving')
     try {
       const sanitizedContent = DOMPurify.sanitize(content)
-      const payload = { title, content: sanitizedContent, status: 'DRAFT' }
+      const payload = { title, subtitle, content: sanitizedContent, status: 'DRAFT' }
       let res: Response
       if (draftId) {
         res = await fetch('/api/posts', {
@@ -48,7 +48,7 @@ function useAutoSave(title: string, content: string) {
       console.error('Failed to save draft:', error)
       setSaveStatus('error')
     }
-  }, [title, content, draftId])
+  }, [title, subtitle, content, draftId])
 
   useEffect(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current)
@@ -59,7 +59,7 @@ function useAutoSave(title: string, content: string) {
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
     }
-  }, [title, content, saveDraft])
+  }, [title, subtitle, content, saveDraft])
 
 
 
@@ -68,6 +68,7 @@ function useAutoSave(title: string, content: string) {
 
 export default function NewArticlePage() {
   const [title, setTitle] = useState('')
+  const [subtitle, setSubtitle] = useState('')
   const [content, setContent] = useState('')
   const [wordCount, setWordCount] = useState(0)
   const [imageUploadError, setImageUploadError] = useState('')
@@ -83,7 +84,7 @@ export default function NewArticlePage() {
       setWordCount(countWords(html))
     },
   })
-  const { saveStatus } = useAutoSave(title, content)
+  const { saveStatus } = useAutoSave(title, subtitle, content)
 
   const uploadImage = async (file: File) => {
     if (!editor) return
@@ -166,7 +167,20 @@ export default function NewArticlePage() {
               type="text"
               value={title}
               onChange={(event) => setTitle(event.target.value)}
-              className="w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] font-sans text-[var(--app-color-reader-text)] outline-none placeholder:text-[var(--app-color-reader-placeholder)] focus:[border-color:var(--app-border-reader-focus)]"
+              className="w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[#020617] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] font-sans text-[var(--app-color-reader-text)] outline-none placeholder:text-[var(--app-color-reader-placeholder)] focus:[border-color:var(--app-border-reader-focus)]"
+            />
+          </div>
+
+          <div>
+            <label className="mb-[var(--app-space-label-gap)] block font-sans text-sm font-medium" htmlFor="article-subtitle">
+              Subtitle
+            </label>
+            <input
+              id="article-subtitle"
+              type="text"
+              value={subtitle}
+              onChange={(event) => setSubtitle(event.target.value)}
+              className="w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[#020617] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] font-sans text-[var(--app-color-reader-text)] outline-none placeholder:text-[var(--app-color-reader-placeholder)] focus:[border-color:var(--app-border-reader-focus)]"
             />
           </div>
 
@@ -252,7 +266,7 @@ export default function NewArticlePage() {
             )}
             <EditorContent
               editor={editor}
-              className="min-h-[var(--app-size-editor-min-height)] w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] text-lg leading-8 text-[var(--app-color-reader-text)] outline-none focus-within:[border-color:var(--app-border-reader-focus)] [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[var(--app-size-editor-min-height)] [&_.ProseMirror]:text-lg [&_.ProseMirror]:leading-8 [&_.ProseMirror]:text-[var(--app-color-reader-text)]"
+              className="min-h-[var(--app-size-editor-min-height)] w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[#020617] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] text-lg leading-8 text-[var(--app-color-reader-text)] outline-none focus-within:[border-color:var(--app-border-reader-focus)] [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[var(--app-size-editor-min-height)] [&_.ProseMirror]:text-lg [&_.ProseMirror]:leading-8 [&_.ProseMirror]:text-[var(--app-color-reader-text)]"
             />
           </div>
         </div>

@@ -9,7 +9,7 @@
   --app-border-caret-width: 0.25rem;
   --app-size-sidebar-width: 16rem;
   --app-size-dashboard-content-max: 56rem;
-  --app-size-reader-content-max: 42rem;
+  --app-size-reader-content-max: 45vw;
   --app-size-modal-max: 28rem;
   --app-size-editor-min-height: 24rem;
   --app-space-dashboard-page: 2rem;
@@ -32,8 +32,8 @@
   --app-space-reader-y: 3rem;
   --app-space-reader-footer-top: 2rem;
   --app-space-reader-footer-margin: 3rem;
-  --app-line-spacing: 2.2;
-  --app-paragraph-spacing: 2.0rem;
+  --app-line-spacing: 1.6;
+  --app-paragraph-spacing: 0.8rem;
   --app-color-dashboard-bg: #161718;
   --app-color-dashboard-surface: #131414;
   --app-color-dashboard-panel: #1b1c1d;
@@ -122,15 +122,15 @@ body {
 }
 
 .edit-input {
-  width: 600px;
+  width: 100%;
 }
 
 .edit-content {
-  width: 600px;
+  width: 100%;
 }
 
 .edit-toolbar {
-  width: 600px;
+  width: 100%;
 }
 
 .ProseMirror {

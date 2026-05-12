@@ -21,6 +21,7 @@ enum PostStatus {
 model Post {
   id        Int         @id @default(autoincrement())
   title     String
+  subtitle  String?
   content   String
   status    PostStatus  @default(DRAFT)
   createdAt DateTime    @default(now())

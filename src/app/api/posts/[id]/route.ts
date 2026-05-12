@@ -13,6 +13,10 @@ function parsePostStatus(status: unknown) {
   return Object.values(PostStatus).includes(status as PostStatus) ? status as PostStatus : null
 }
 
+function normalizeSubtitle(subtitle: unknown) {
+  return typeof subtitle === 'string' && subtitle.trim() ? subtitle.trim() : null
+}
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -48,9 +52,10 @@ export async function PUT(
       return NextResponse.json({ error: 'Invalid post id' }, { status: 400 })
     }
 
-    const { title, content, status } = await request.json()
+    const { title, subtitle, content, status } = await request.json()
     const data: Prisma.PostUpdateInput = {}
     if (title !== undefined) data.title = title
+    if (subtitle !== undefined) data.subtitle = normalizeSubtitle(subtitle)
     if (content !== undefined) data.content = content
     if (status !== undefined) {
       const parsedStatus = parsePostStatus(status)

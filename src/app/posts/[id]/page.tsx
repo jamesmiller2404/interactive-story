@@ -6,6 +6,7 @@ import Link from 'next/link'
 interface Post {
   id: number
   title: string
+  subtitle: string | null
   content: string
   status: string
   createdAt: string
@@ -112,10 +113,16 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
           <h1 className="text-4xl font-bold font-sans mb-[var(--app-space-card)] leading-tight">
             {post.title}
           </h1>
-          <div className="text-sm text-[var(--app-color-reader-muted)] [border-bottom:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] pb-[var(--app-space-card)]">
+          {post.subtitle && (
+            <p className="mb-[var(--app-space-card)] font-sans text-xl leading-8 text-[var(--app-color-reader-muted)]">
+              {post.subtitle}
+            </p>
+          )}
+          <div className="space-y-1 text-sm text-[var(--app-color-reader-muted)] [border-bottom:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] pb-[var(--app-space-card)]">
             <time dateTime={new Date(post.createdAt).toISOString()}>
-              {new Date(post.createdAt).toLocaleString()}
+              Date: {new Date(post.createdAt).toLocaleDateString()}
             </time>
+            <p>Time: {new Date(post.createdAt).toLocaleTimeString()}</p>
           </div>
         </header>
 
@@ -123,13 +130,10 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
           <div className="text-lg story-text" dangerouslySetInnerHTML={{ __html: post.content }} />
         </div>
 
-        <footer className="mt-[var(--app-space-reader-footer-margin)] pt-[var(--app-space-reader-footer-top)] [border-top:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] text-sm text-[var(--app-color-reader-muted)]">
-          <p>
-            {post.status === 'PUBLISHED'
-              ? `Published on ${new Date(post.updatedAt).toLocaleString()}`
-              : `Draft last updated on ${new Date(post.updatedAt).toLocaleString()}`
-            }
-          </p>
+        <footer className="mt-[var(--app-space-reader-footer-margin)] space-y-1 pt-[var(--app-space-reader-footer-top)] [border-top:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] text-sm text-[var(--app-color-reader-muted)]">
+          <p>{post.status === 'PUBLISHED' ? 'Published' : 'Draft last updated'}</p>
+          <p>Date: {new Date(post.updatedAt).toLocaleDateString()}</p>
+          <p>Time: {new Date(post.updatedAt).toLocaleTimeString()}</p>
         </footer>
       </article>
     </div>
