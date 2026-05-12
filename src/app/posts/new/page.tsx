@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
+import Image from '@tiptap/extension-image'
 import DOMPurify from 'dompurify'
 import { countWords } from '@/utils/countWords'
 
@@ -69,7 +70,7 @@ export default function NewArticlePage() {
   const [content, setContent] = useState('')
   const [wordCount, setWordCount] = useState(0)
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: [StarterKit, Image],
     content: '',
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
@@ -181,6 +182,18 @@ export default function NewArticlePage() {
                   className="rounded-app px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium bg-[var(--app-color-reader-surface)] text-[var(--app-color-reader-text)] hover:bg-[var(--app-color-reader-surface-hover)]"
                 >
                   ―
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const url = window.prompt('Enter image URL:')
+                    if (url) {
+                      editor.chain().focus().setImage({ src: url }).run()
+                    }
+                  }}
+                  className="rounded-app px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium bg-[var(--app-color-reader-surface)] text-[var(--app-color-reader-text)] hover:bg-[var(--app-color-reader-surface-hover)]"
+                >
+                  🖼️
                 </button>
               </div>
             )}

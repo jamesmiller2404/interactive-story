@@ -4,6 +4,7 @@ import { use, useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
+import Image from '@tiptap/extension-image'
 import DOMPurify from 'dompurify'
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
@@ -100,7 +101,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   const [error, setError] = useState('')
   const [wordCount, setWordCount] = useState(0)
   const editor = useEditor({
-    extensions: [StarterKit],
+    extensions: [StarterKit, Image],
     content: '',
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
@@ -285,6 +286,18 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                   className="rounded-app px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium bg-[var(--app-color-reader-surface)] text-[var(--app-color-reader-text)] hover:bg-[var(--app-color-reader-surface-hover)]"
                 >
                   ―
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const url = window.prompt('Enter image URL:')
+                    if (url) {
+                      editor.chain().focus().setImage({ src: url }).run()
+                    }
+                  }}
+                  className="rounded-app px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium bg-[var(--app-color-reader-surface)] text-[var(--app-color-reader-text)] hover:bg-[var(--app-color-reader-surface-hover)]"
+                >
+                  🖼️
                 </button>
               </div>
             )}
