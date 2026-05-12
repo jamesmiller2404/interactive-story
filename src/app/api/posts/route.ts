@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { PostStatus, Prisma } from '@prisma/client'
 import { prisma } from '../../../lib/prisma'
 
 export const runtime = 'nodejs'
@@ -22,12 +23,21 @@ function generateTitle() {
   return `Untitled ${dateStr}, ${timeStr}`
 }
 
+function parsePostStatus(status: unknown) {
+  return Object.values(PostStatus).includes(status as PostStatus) ? status as PostStatus : null
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { title, content, status } = await request.json()
+    const parsedStatus = status === undefined ? PostStatus.DRAFT : parsePostStatus(status)
+    if (!parsedStatus) {
+      return NextResponse.json({ error: 'Invalid post status' }, { status: 400 })
+    }
+
     const finalTitle = title && title.trim() ? title : generateTitle()
     const post = await prisma.post.create({
-      data: { title: finalTitle, content, status: status || 'DRAFT' }
+      data: { title: finalTitle, content, status: parsedStatus }
     })
     return NextResponse.json(post, { status: 201 })
   } catch (error) {
@@ -40,10 +50,16 @@ export async function PUT(request: NextRequest) {
   try {
     const { id, title, content, status } = await request.json()
     const finalTitle = title !== undefined && title.trim() ? title : title === '' ? generateTitle() : undefined
-    const updateData: { title?: string; content?: string; status?: string } = {}
+    const updateData: Prisma.PostUpdateInput = {}
     if (finalTitle !== undefined) updateData.title = finalTitle
     if (content !== undefined) updateData.content = content
-    if (status !== undefined) updateData.status = status
+    if (status !== undefined) {
+      const parsedStatus = parsePostStatus(status)
+      if (!parsedStatus) {
+        return NextResponse.json({ error: 'Invalid post status' }, { status: 400 })
+      }
+      updateData.status = parsedStatus
+    }
     const post = await prisma.post.update({
       where: { id },
       data: updateData

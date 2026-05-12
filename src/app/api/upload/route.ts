@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { writeFile } from 'fs/promises'
+import { mkdir, writeFile } from 'fs/promises'
 import path from 'path'
+
+export const runtime = 'nodejs'
 
 export async function POST(request: NextRequest) {
   try {
@@ -27,6 +29,7 @@ export async function POST(request: NextRequest) {
 
     // Save to public/images
     const publicDir = path.join(process.cwd(), 'public', 'images')
+    await mkdir(publicDir, { recursive: true })
     const filepath = path.join(publicDir, filename)
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)

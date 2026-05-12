@@ -213,6 +213,32 @@ body {
   max-width: 100%;
   height: auto;
   display: block;
-  margin: 1rem auto;
+  margin: 1rem auto 0.5rem;
   border-radius: 4px;
+}
+
+.prose figure[data-type="captioned-image"],
+.ProseMirror figure[data-type="captioned-image"] {
+  margin: 1.5rem 0;
+}
+
+.prose figure[data-type="captioned-image"] figcaption,
+.ProseMirror figure[data-type="captioned-image"] figcaption {
+  margin: 0.5rem auto 0;
+  max-width: 90%;
+  border-radius: 4px;
+  background-color: #182033;
+  padding: 0.5rem 0.75rem;
+  color: #d7deea;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.45;
+  text-align: center;
+}
+
+.ProseMirror figure[data-type="captioned-image"] figcaption:empty::before {
+  content: "Add image description";
+  color: var(--app-color-reader-placeholder);
 }

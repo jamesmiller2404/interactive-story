@@ -1,11 +1,12 @@
 'use client'
 
-import { use, useState, useEffect, useCallback, useRef } from 'react'
+import { type ChangeEvent, use, useState, useEffect, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
 import DOMPurify from 'dompurify'
+import { CaptionedImage } from '@/editor/captionedImage'
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 
@@ -100,8 +101,11 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [wordCount, setWordCount] = useState(0)
+  const [imageUploadError, setImageUploadError] = useState('')
+  const [isUploadingImage, setIsUploadingImage] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
   const editor = useEditor({
-    extensions: [StarterKit, Image],
+    extensions: [StarterKit, Image, CaptionedImage],
     content: '',
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
@@ -111,6 +115,46 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
     },
   })
   const { saveStatus, publishDraft } = useAutoSave(Number(id), title, content)
+
+  const uploadImage = async (file: File) => {
+    if (!editor) return
+
+    setImageUploadError('')
+    setIsUploadingImage(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error || 'Image upload failed')
+
+      const description = window.prompt('Add a short description below this image', '')?.trim() ?? ''
+      editor
+        .chain()
+        .focus()
+        .insertContent({
+          type: 'captionedImage',
+          attrs: { src: data.url, alt: description },
+          content: description ? [{ type: 'text', text: description }] : [],
+        })
+        .run()
+    } catch (error) {
+      console.error('Failed to upload image:', error)
+      setImageUploadError(error instanceof Error ? error.message : 'Image upload failed')
+    } finally {
+      setIsUploadingImage(false)
+    }
+  }
+
+  const handleImageInputChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (file) void uploadImage(file)
+  }
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -236,6 +280,13 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
             </label>
             {editor && (
               <div className="mb-2 flex gap-2 flex-wrap">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg"
+                  onChange={handleImageInputChange}
+                  className="hidden"
+                />
                 <button
                   type="button"
                   onClick={() => editor.chain().focus().toggleBold().run()}
@@ -289,17 +340,19 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    const url = window.prompt('Enter image URL:')
-                    if (url) {
-                      editor.chain().focus().setImage({ src: url }).run()
-                    }
-                  }}
-                  className="rounded-app px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium bg-[var(--app-color-reader-surface)] text-[var(--app-color-reader-text)] hover:bg-[var(--app-color-reader-surface-hover)]"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploadingImage}
+                  title={isUploadingImage ? 'Uploading image' : 'Upload image'}
+                  className="rounded-app px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium bg-[var(--app-color-reader-surface)] text-[var(--app-color-reader-text)] hover:bg-[var(--app-color-reader-surface-hover)] disabled:opacity-50"
                 >
                   🖼️
                 </button>
               </div>
+            )}
+            {imageUploadError && (
+              <p className="mb-2 font-sans text-sm text-[var(--app-color-error-dark-text)]">
+                {imageUploadError}
+              </p>
             )}
             <EditorContent
               editor={editor}

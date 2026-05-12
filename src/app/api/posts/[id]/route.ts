@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { PostStatus, Prisma } from '@prisma/client'
 import { prisma } from '../../../../lib/prisma'
 
 export const runtime = 'nodejs'
@@ -6,6 +7,10 @@ export const runtime = 'nodejs'
 function parsePostId(id: string) {
   const postId = Number(id)
   return Number.isInteger(postId) && postId > 0 ? postId : null
+}
+
+function parsePostStatus(status: unknown) {
+  return Object.values(PostStatus).includes(status as PostStatus) ? status as PostStatus : null
 }
 
 export async function GET(
@@ -44,9 +49,20 @@ export async function PUT(
     }
 
     const { title, content, status } = await request.json()
+    const data: Prisma.PostUpdateInput = {}
+    if (title !== undefined) data.title = title
+    if (content !== undefined) data.content = content
+    if (status !== undefined) {
+      const parsedStatus = parsePostStatus(status)
+      if (!parsedStatus) {
+        return NextResponse.json({ error: 'Invalid post status' }, { status: 400 })
+      }
+      data.status = parsedStatus
+    }
+
     const post = await prisma.post.update({
       where: { id: postId },
-      data: { title, content, status }
+      data
     })
     return NextResponse.json(post)
   } catch (error) {
