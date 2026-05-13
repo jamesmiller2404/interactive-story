@@ -1,11 +1,11 @@
 'use client'
 
 import { type ChangeEvent, useState, useEffect, useCallback, useRef } from 'react'
-import Link from 'next/link'
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Image from '@tiptap/extension-image'
 import DOMPurify from 'dompurify'
+import EditorToolbar from '@/app/components/EditorToolbar'
 import { CaptionedImage } from '@/editor/captionedImage'
 import { countWords } from '@/utils/countWords'
 
@@ -14,12 +14,20 @@ type SaveStatus = 'idle' | 'saving' | 'saved' | 'error'
 function useAutoSave(title: string, subtitle: string, content: string) {
   const [draftId, setDraftId] = useState<number | null>(null)
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle')
+  const [isPublishing, setIsPublishing] = useState(false)
   const timeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const savedTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const hasTrackedInitialStateRef = useRef(false)
+  const saveVersionRef = useRef(0)
 
   const saveDraft = useCallback(async () => {
-    if (!title.trim() && !subtitle.trim() && !content.trim()) return
+    if (!title.trim() && !subtitle.trim() && !content.trim()) {
+      setSaveStatus('idle')
+      return
+    }
 
     const startTime = Date.now()
+    const currentSaveVersion = saveVersionRef.current
     setSaveStatus('saving')
     try {
       const sanitizedContent = DOMPurify.sanitize(content)
@@ -43,7 +51,12 @@ function useAutoSave(title: string, subtitle: string, content: string) {
       setDraftId(data.id)
       const elapsed = Date.now() - startTime
       const delay = Math.max(0, 500 - elapsed)
-      setTimeout(() => setSaveStatus('saved'), delay)
+      if (savedTimeoutRef.current) clearTimeout(savedTimeoutRef.current)
+      savedTimeoutRef.current = setTimeout(() => {
+        if (saveVersionRef.current === currentSaveVersion) {
+          setSaveStatus('saved')
+        }
+      }, delay)
     } catch (error) {
       console.error('Failed to save draft:', error)
       setSaveStatus('error')
@@ -52,18 +65,59 @@ function useAutoSave(title: string, subtitle: string, content: string) {
 
   useEffect(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current)
+    if (savedTimeoutRef.current) clearTimeout(savedTimeoutRef.current)
+
+    if (!hasTrackedInitialStateRef.current) {
+      hasTrackedInitialStateRef.current = true
+      return
+    }
+
+    if (!title.trim() && !subtitle.trim() && !content.trim()) {
+      setSaveStatus('idle')
+      return
+    }
+
+    saveVersionRef.current += 1
     timeoutRef.current = setTimeout(() => {
       saveDraft()
-    }, 3000) // Save after 3 seconds of inactivity
+    }, 1000)
 
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      if (savedTimeoutRef.current) clearTimeout(savedTimeoutRef.current)
     }
-  }, [title, subtitle, content, saveDraft])
+  }, [title, subtitle, content])
 
 
 
-  return { saveStatus }
+  const publishDraft = useCallback(async () => {
+    if (!title.trim() && !subtitle.trim() && !content.trim()) return null
+
+    setIsPublishing(true)
+    setSaveStatus('saving')
+    try {
+      const sanitizedContent = DOMPurify.sanitize(content)
+      const payload = { title, subtitle, content: sanitizedContent, status: 'PUBLISHED' }
+      const res = await fetch('/api/posts', {
+        method: draftId ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(draftId ? { id: draftId, ...payload } : payload)
+      })
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error)
+      setDraftId(data.id)
+      setSaveStatus('saved')
+      return data
+    } catch (error) {
+      console.error('Failed to publish article:', error)
+      setSaveStatus('error')
+      throw error
+    } finally {
+      setIsPublishing(false)
+    }
+  }, [title, subtitle, content, draftId])
+
+  return { draftId, saveStatus, isPublishing, publishDraft }
 }
 
 export default function NewArticlePage() {
@@ -84,7 +138,7 @@ export default function NewArticlePage() {
       setWordCount(countWords(html))
     },
   })
-  const { saveStatus } = useAutoSave(title, subtitle, content)
+  const { draftId, saveStatus, isPublishing, publishDraft } = useAutoSave(title, subtitle, content)
 
   const uploadImage = async (file: File) => {
     if (!editor) return
@@ -126,148 +180,101 @@ export default function NewArticlePage() {
     if (file) void uploadImage(file)
   }
 
+  useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent('post-editor-state-change', {
+        detail: {
+          saveStatus,
+          previewHref: draftId ? `/posts/${draftId}` : null,
+          canPublish: Boolean(title.trim() || subtitle.trim() || content.trim()),
+          isPublishing,
+        },
+      })
+    )
+  }, [draftId, saveStatus, title, subtitle, content, isPublishing])
+
+  useEffect(() => {
+    const handlePublish = async () => {
+      try {
+        const publishedPost = await publishDraft()
+        if (publishedPost?.id) {
+          window.location.href = `/posts/${publishedPost.id}`
+        }
+      } catch (error) {
+        console.error('Failed to publish article:', error)
+      }
+    }
+
+    window.addEventListener('post-editor-publish', handlePublish)
+    return () => window.removeEventListener('post-editor-publish', handlePublish)
+  }, [publishDraft])
+
 
 
   return (
     <div className="min-h-screen bg-[var(--app-color-reader-bg)] text-[var(--app-color-reader-text)]">
+      <div className="sticky top-14 z-30 bg-[var(--app-color-reader-bg)] px-[var(--app-space-reader-x)] py-3 [border-bottom:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)]">
+        <div className="mx-auto max-w-[var(--app-size-reader-content-max)]">
+          <EditorToolbar
+            editor={editor}
+            fileInputRef={fileInputRef}
+            isUploadingImage={isUploadingImage}
+            onImageInputChange={handleImageInputChange}
+          />
+        </div>
+      </div>
+
       <main className="max-w-[var(--app-size-reader-content-max)] mx-auto px-[var(--app-space-reader-x)] py-[var(--app-space-reader-y)] pb-8 font-serif leading-relaxed">
-        <header className="mb-[var(--app-space-section)] relative">
-          <Link
-            href="/"
-            className="mb-[var(--app-space-section)] inline-flex rounded-app bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium text-[var(--app-color-reader-text)] transition hover:bg-[var(--app-color-reader-surface-hover)]"
-          >
-            Dashboard
-          </Link>
-          {(saveStatus === 'saving' || saveStatus === 'saved') && (
-            <div className="absolute top-0 right-0 rounded-app bg-[var(--app-color-reader-surface)] border border-[var(--app-color-reader-border)] px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] flex items-center gap-2">
-              <div className={`w-2 h-2 rounded-full ${saveStatus === 'saved' ? 'bg-green-500' : 'bg-[var(--app-color-accent)]'}`}></div>
-              <span className="text-sm text-[var(--app-color-reader-text)]">
-                {saveStatus === 'saving' ? 'Saving draft' : 'Draft saved'}
-              </span>
-            </div>
-          )}
-          <h1 className="text-4xl font-bold font-sans mb-[var(--app-space-card)] leading-tight">
-            New Article
-          </h1>
-          <div className="[border-bottom:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] pb-[var(--app-space-card)] text-sm text-[var(--app-color-reader-muted)]">
-            Create a new post
-            {saveStatus === 'error' && <span className="ml-4 text-[var(--app-color-error-dark-text)]">Failed to save draft</span>}
-          </div>
-        </header>
-
-
-
+        {saveStatus === 'error' && (
+          <p className="mb-[var(--app-space-stack)] font-sans text-sm text-[var(--app-color-error-dark-text)]">
+            Failed to save draft
+          </p>
+        )}
         <div className="space-y-[var(--app-space-stack)]">
           <div>
-            <label className="mb-[var(--app-space-label-gap)] block font-sans text-sm font-medium" htmlFor="article-title">
-              Post Title
-            </label>
-            <input
-              id="article-title"
-              type="text"
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              className="w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[#020617] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] font-sans text-[var(--app-color-reader-text)] outline-none placeholder:text-[var(--app-color-reader-placeholder)] focus:[border-color:var(--app-border-reader-focus)]"
-            />
+            <h1>
+              <input
+                id="article-title"
+                type="text"
+                aria-label="Post Title"
+                placeholder="Post Title"
+                value={title}
+                onChange={(event) => setTitle(event.target.value)}
+                className="w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[#020617] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] font-sans text-4xl font-bold leading-tight text-[var(--app-color-reader-text)] outline-none placeholder:text-[var(--app-color-reader-placeholder)] focus:[border-color:var(--app-border-reader-focus)]"
+              />
+            </h1>
           </div>
 
           <div>
-            <label className="mb-[var(--app-space-label-gap)] block font-sans text-sm font-medium" htmlFor="article-subtitle">
-              Subtitle
-            </label>
             <input
               id="article-subtitle"
               type="text"
+              aria-label="Subtitle"
+              placeholder="Subtitle"
               value={subtitle}
               onChange={(event) => setSubtitle(event.target.value)}
-              className="w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[#020617] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] font-sans text-[var(--app-color-reader-text)] outline-none placeholder:text-[var(--app-color-reader-placeholder)] focus:[border-color:var(--app-border-reader-focus)]"
+              className="w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[#020617] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] font-sans text-[var(--app-color-reader-placeholder)] outline-none placeholder:text-[var(--app-color-reader-placeholder)] focus:[border-color:var(--app-border-reader-focus)]"
             />
           </div>
 
           <div>
-            <label className="mb-[var(--app-space-label-gap)] block font-sans text-sm font-medium" htmlFor="article-content">
-              Post Content
-            </label>
-            {editor && (
-              <div className="mb-2 flex gap-2 flex-wrap">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/png,image/jpeg"
-                  onChange={handleImageInputChange}
-                  className="hidden"
-                />
-                <button
-                  type="button"
-                  onClick={() => editor.chain().focus().toggleBold().run()}
-                  className={`rounded-app px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium ${
-                    editor.isActive('bold')
-                      ? 'bg-[var(--app-color-accent)] text-[var(--app-color-accent-foreground)]'
-                      : 'bg-[var(--app-color-reader-surface)] text-[var(--app-color-reader-text)] hover:bg-[var(--app-color-reader-surface-hover)]'
-                  }`}
-                >
-                  <strong>B</strong>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => editor.chain().focus().toggleItalic().run()}
-                  className={`rounded-app px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium ${
-                    editor.isActive('italic')
-                      ? 'bg-[var(--app-color-accent)] text-[var(--app-color-accent-foreground)]'
-                      : 'bg-[var(--app-color-reader-surface)] text-[var(--app-color-reader-text)] hover:bg-[var(--app-color-reader-surface-hover)]'
-                  }`}
-                >
-                  <em>I</em>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => editor.chain().focus().toggleBlockquote().run()}
-                  className={`rounded-app px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium ${
-                    editor.isActive('blockquote')
-                      ? 'bg-[var(--app-color-accent)] text-[var(--app-color-accent-foreground)]'
-                      : 'bg-[var(--app-color-reader-surface)] text-[var(--app-color-reader-text)] hover:bg-[var(--app-color-reader-surface-hover)]'
-                  }`}
-                >
-                  &ldquo;
-                </button>
-                <button
-                  type="button"
-                  onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-                  className={`rounded-app px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium ${
-                    editor.isActive('codeBlock')
-                      ? 'bg-[var(--app-color-accent)] text-[var(--app-color-accent-foreground)]'
-                      : 'bg-[var(--app-color-reader-surface)] text-[var(--app-color-reader-text)] hover:bg-[var(--app-color-reader-surface-hover)]'
-                  }`}
-                >
-                  &lt;/&gt;
-                </button>
-                <button
-                  type="button"
-                  onClick={() => editor.chain().focus().setHorizontalRule().run()}
-                  className="rounded-app px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium bg-[var(--app-color-reader-surface)] text-[var(--app-color-reader-text)] hover:bg-[var(--app-color-reader-surface-hover)]"
-                >
-                  ―
-                </button>
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploadingImage}
-                  title={isUploadingImage ? 'Uploading image' : 'Upload image'}
-                  className="rounded-app px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium bg-[var(--app-color-reader-surface)] text-[var(--app-color-reader-text)] hover:bg-[var(--app-color-reader-surface-hover)] disabled:opacity-50"
-                >
-                  🖼️
-                </button>
-              </div>
-            )}
             {imageUploadError && (
               <p className="mb-2 font-sans text-sm text-[var(--app-color-error-dark-text)]">
                 {imageUploadError}
               </p>
             )}
-            <EditorContent
-              editor={editor}
-              className="min-h-[var(--app-size-editor-min-height)] w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[#020617] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] text-lg leading-8 text-[var(--app-color-reader-text)] outline-none focus-within:[border-color:var(--app-border-reader-focus)] [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[var(--app-size-editor-min-height)] [&_.ProseMirror]:text-lg [&_.ProseMirror]:leading-8 [&_.ProseMirror]:text-[var(--app-color-reader-text)]"
-            />
+            <div className="relative">
+              {editor?.isEmpty && (
+                <p className="pointer-events-none absolute left-[var(--app-space-control-x)] top-[var(--app-space-field-y)] z-10 font-sans text-lg leading-8 text-[var(--app-color-reader-placeholder)]">
+                  Content...
+                </p>
+              )}
+              <EditorContent
+                editor={editor}
+                aria-label="Content"
+                className="min-h-[var(--app-size-editor-min-height)] w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[#020617] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] text-lg leading-8 text-[var(--app-color-reader-text)] outline-none focus-within:[border-color:var(--app-border-reader-focus)] [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[var(--app-size-editor-min-height)] [&_.ProseMirror]:text-lg [&_.ProseMirror]:leading-8 [&_.ProseMirror]:text-[var(--app-color-reader-text)]"
+              />
+            </div>
           </div>
         </div>
       </main>

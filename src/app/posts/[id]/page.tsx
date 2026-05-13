@@ -1,6 +1,6 @@
 'use client'
 
-import { use, useState, useEffect } from 'react'
+import { use, useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 
 interface Post {
@@ -38,7 +38,7 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
     fetchPost()
   }, [id])
 
-  const unpublishPost = async () => {
+  const unpublishPost = useCallback(async () => {
     if (!post) return
     setUnpublishing(true)
     try {
@@ -60,7 +60,23 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
     } finally {
       setUnpublishing(false)
     }
-  }
+  }, [post])
+
+  useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent('post-viewer-state-change', {
+        detail: {
+          status: post?.status ?? null,
+          isUnpublishing: unpublishing,
+        },
+      })
+    )
+  }, [post?.status, unpublishing])
+
+  useEffect(() => {
+    window.addEventListener('post-viewer-unpublish', unpublishPost)
+    return () => window.removeEventListener('post-viewer-unpublish', unpublishPost)
+  }, [unpublishPost])
 
   if (loading) {
     return (
@@ -86,12 +102,6 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
       <article className="max-w-[var(--app-size-reader-content-max)] mx-auto px-[var(--app-space-reader-x)] py-[var(--app-space-reader-y)] font-serif leading-relaxed">
         <header className="mb-[var(--app-space-section)]">
           <div className="mb-[var(--app-space-section)] flex gap-2">
-            <Link
-              href="/"
-              className="inline-flex rounded-app bg-[var(--app-color-reader-surface)] px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium text-[var(--app-color-reader-text)] transition hover:bg-[var(--app-color-reader-surface-hover)]"
-            >
-              Dashboard
-            </Link>
             {post.status === 'DRAFT' && (
               <Link
                 href={`/posts/${post.id}/edit`}
@@ -100,29 +110,20 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
                 Edit Draft
               </Link>
             )}
-            {post.status === 'PUBLISHED' && (
-              <button
-                onClick={unpublishPost}
-                disabled={unpublishing}
-                className="inline-flex rounded-app bg-red-600 px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] font-sans text-sm font-medium text-white transition hover:bg-red-700 disabled:opacity-50"
-              >
-                {unpublishing ? 'Unpublishing...' : 'Unpublish'}
-              </button>
-            )}
           </div>
           <h1 className="text-4xl font-bold font-sans mb-[var(--app-space-card)] leading-tight">
             {post.title}
           </h1>
           {post.subtitle && (
-            <p className="mb-[var(--app-space-card)] font-sans text-xl leading-8 text-[var(--app-color-reader-muted)]">
+            <p className="mb-[var(--app-space-card)] font-sans text-xl leading-8 text-[var(--app-color-reader-placeholder)]">
               {post.subtitle}
             </p>
           )}
           <div className="space-y-1 text-sm text-[var(--app-color-reader-muted)] [border-bottom:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] pb-[var(--app-space-card)]">
             <time dateTime={new Date(post.createdAt).toISOString()}>
-              Date: {new Date(post.createdAt).toLocaleDateString()}
+              {new Date(post.createdAt).toLocaleDateString()}
             </time>
-            <p>Time: {new Date(post.createdAt).toLocaleTimeString()}</p>
+            <p>{new Date(post.createdAt).toLocaleTimeString()}</p>
           </div>
         </header>
 
@@ -132,8 +133,8 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
 
         <footer className="mt-[var(--app-space-reader-footer-margin)] space-y-1 pt-[var(--app-space-reader-footer-top)] [border-top:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] text-sm text-[var(--app-color-reader-muted)]">
           <p>{post.status === 'PUBLISHED' ? 'Published' : 'Draft last updated'}</p>
-          <p>Date: {new Date(post.updatedAt).toLocaleDateString()}</p>
-          <p>Time: {new Date(post.updatedAt).toLocaleTimeString()}</p>
+          <p>{new Date(post.updatedAt).toLocaleDateString()}</p>
+          <p>{new Date(post.updatedAt).toLocaleTimeString()}</p>
         </footer>
       </article>
     </div>
