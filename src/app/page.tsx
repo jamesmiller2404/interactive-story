@@ -152,10 +152,19 @@ export default function Home() {
   }, [createMenuOpen])
 
   return (
-    <div className="flex min-h-screen bg-[var(--app-color-dashboard-bg)] text-[var(--app-color-text-primary)]">
-      <aside className="flex w-[var(--app-size-sidebar-width)] shrink-0 flex-col [border-right:1px_var(--app-border-style)_var(--app-border-dashboard)] bg-[var(--app-color-dashboard-surface)] p-[var(--app-space-sidebar)]">
-        <h2 className="text-lg font-semibold">Dashboard</h2>
-        <div className="relative mt-[var(--app-space-stack)]">
+    <div className="flex min-h-screen flex-col bg-[var(--app-color-dashboard-bg)] text-[var(--app-color-text-primary)] md:flex-row">
+      <aside className="flex w-full shrink-0 flex-col gap-[var(--app-space-stack)] [border-bottom:1px_var(--app-border-style)_var(--app-border-dashboard)] bg-[var(--app-color-dashboard-surface)] p-[var(--app-space-sidebar)] md:min-h-screen md:w-[var(--app-size-sidebar-width)] md:[border-bottom:0] md:[border-right:1px_var(--app-border-style)_var(--app-border-dashboard)]">
+        <div className="flex items-center justify-between gap-[var(--app-space-control-gap)] md:block">
+          <h2 className="text-lg font-semibold">Dashboard</h2>
+          <button
+            type="button"
+            onClick={() => setSettingsOpen(true)}
+            className="text-sm text-[var(--app-color-text-primary)] underline-offset-4 hover:underline md:hidden"
+          >
+            Settings
+          </button>
+        </div>
+        <div className="relative">
           <button
             ref={createButtonRef}
             type="button"
@@ -195,7 +204,7 @@ export default function Home() {
           )}
         </div>
 
-        <nav className="mt-auto">
+        <nav className="mt-auto hidden md:block">
           <button
             type="button"
             onClick={() => setSettingsOpen(true)}
@@ -206,10 +215,10 @@ export default function Home() {
         </nav>
       </aside>
 
-      <main className="flex-1 bg-[var(--app-color-dashboard-bg)] p-[var(--app-space-dashboard-page)] text-[var(--app-color-text-primary)]">
-        <div className="max-w-[var(--app-size-dashboard-content-max)]">
+      <main className="w-full min-w-0 flex-1 bg-[var(--app-color-dashboard-bg)] p-[var(--app-space-dashboard-page)] text-[var(--app-color-text-primary)]">
+        <div className="mx-auto w-full max-w-[var(--app-size-dashboard-content-max)]">
           <div className="mb-[var(--app-space-section)]">
-            <h1 className="text-3xl font-bold">Interactive Story Reader</h1>
+            <h1 className="text-2xl font-bold leading-tight sm:text-3xl">Interactive Story Reader</h1>
           </div>
 
           {error && (
@@ -219,8 +228,8 @@ export default function Home() {
           )}
 
           <div className="space-y-[var(--app-space-stack)]">
-            <div className="flex flex-wrap items-center justify-between gap-[var(--app-space-control-gap)]">
-              <div className="inline-flex rounded-app-card [border:1px_var(--app-border-style)_var(--app-border-dashboard-panel)] bg-[var(--app-color-dashboard-panel)] p-1">
+            <div className="flex flex-col gap-[var(--app-space-control-gap)] sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+              <div className="grid grid-cols-2 rounded-app-card [border:1px_var(--app-border-style)_var(--app-border-dashboard-panel)] bg-[var(--app-color-dashboard-panel)] p-1 sm:inline-flex">
                 {POST_STATUS_FILTERS.map((status) => {
                   const isSelected = selectedPostStatus === status
                   const label = status === 'PUBLISHED' ? 'Published' : 'Draft'
@@ -231,7 +240,7 @@ export default function Home() {
                       key={status}
                       type="button"
                       onClick={() => setSelectedPostStatus(status)}
-                      className={`rounded-app-button px-3 py-1.5 text-sm font-medium transition-colors ${
+                      className={`rounded-app-button px-2.5 py-2 text-sm font-medium transition-colors sm:px-3 sm:py-1.5 ${
                         isSelected
                           ? 'bg-[#3a3b3d] text-[var(--app-color-text-primary)]'
                           : 'text-[var(--app-color-text-muted)] hover:bg-[#252628] hover:text-[var(--app-color-text-primary)]'
@@ -245,7 +254,7 @@ export default function Home() {
               </div>
 
               <div
-                className="inline-flex rounded-app-card [border:1px_var(--app-border-style)_var(--app-border-dashboard-panel)] bg-[var(--app-color-dashboard-panel)] p-1"
+                className="grid grid-cols-2 rounded-app-card [border:1px_var(--app-border-style)_var(--app-border-dashboard-panel)] bg-[var(--app-color-dashboard-panel)] p-1 sm:inline-flex"
                 aria-label="Sort posts"
               >
                 {POST_SORT_OPTIONS.map((sortOption) => {
@@ -257,7 +266,7 @@ export default function Home() {
                       key={sortOption}
                       type="button"
                       onClick={() => setSelectedPostSort(sortOption)}
-                      className={`rounded-app-button px-3 py-1.5 text-sm font-medium transition-colors ${
+                      className={`rounded-app-button px-2.5 py-2 text-sm font-medium transition-colors sm:px-3 sm:py-1.5 ${
                         isSelected
                           ? 'bg-[#3a3b3d] text-[var(--app-color-text-primary)]'
                           : 'text-[var(--app-color-text-muted)] hover:bg-[#252628] hover:text-[var(--app-color-text-primary)]'
@@ -279,8 +288,8 @@ export default function Home() {
 
             {sortedFilteredPosts.map((post) => (
               <div key={post.id} className="rounded-app-card [border:1px_var(--app-border-style)_var(--app-border-dashboard-panel)] bg-[var(--app-color-dashboard-panel)] p-[var(--app-space-card)]">
-                <div className="mb-[var(--app-space-label-gap)] flex items-center justify-between gap-[var(--app-space-control-gap)]">
-                  <div className="flex min-w-0 items-center gap-2">
+                <div className="mb-[var(--app-space-label-gap)] flex flex-col gap-[var(--app-space-control-gap)] sm:flex-row sm:items-start sm:justify-between">
+                  <div className="flex min-w-0 items-start gap-2">
                     {post.status === 'DRAFT' && (
                       <Link
                         href={`/posts/${post.id}/edit`}
@@ -305,11 +314,11 @@ export default function Home() {
                         </svg>
                       </Link>
                     )}
-                    <Link className="min-w-0" href={post.status === 'DRAFT' ? `/posts/${post.id}/edit` : `/posts/${post.id}`}>
-                      <h1 className="truncate text-xl font-semibold hover:text-[var(--app-color-link-hover)] cursor-pointer">{post.title}</h1>
+                    <Link className="min-w-0 flex-1" href={post.status === 'DRAFT' ? `/posts/${post.id}/edit` : `/posts/${post.id}`}>
+                      <h1 className="break-words text-lg font-semibold leading-snug hover:text-[var(--app-color-link-hover)] cursor-pointer sm:text-xl">{post.title}</h1>
                     </Link>
                   </div>
-                  <div className="flex items-center gap-[var(--app-space-control-gap)]">
+                  <div className="flex items-center justify-between gap-[var(--app-space-control-gap)] sm:justify-end">
                     {post.status === 'DRAFT' && (
                       <span className="rounded-app-button bg-[var(--app-color-accent)] px-[var(--app-space-control-x)] py-[var(--app-space-control-y)] text-xs font-medium text-[var(--app-color-accent-foreground)]">
                         Draft
@@ -357,7 +366,7 @@ export default function Home() {
           aria-modal="true"
           aria-labelledby="settings-title"
         >
-          <div className="w-full max-w-[var(--app-size-modal-max)] rounded-app-card [border:1px_var(--app-border-style)_var(--app-border-dashboard)] bg-[var(--app-color-dashboard-surface)] p-[var(--app-space-modal)] text-[var(--app-color-text-primary)] shadow-xl">
+          <div className="max-h-[calc(100vh-2rem)] w-full max-w-[var(--app-size-modal-max)] overflow-auto rounded-app-card [border:1px_var(--app-border-style)_var(--app-border-dashboard)] bg-[var(--app-color-dashboard-surface)] p-[var(--app-space-modal)] text-[var(--app-color-text-primary)] shadow-xl">
             <div className="mb-[var(--app-space-stack)] flex items-center justify-between gap-[var(--app-space-card)]">
               <h2 id="settings-title" className="text-xl font-semibold">
                 Settings
@@ -396,7 +405,7 @@ export default function Home() {
           aria-modal="true"
           aria-labelledby="delete-confirm-title"
         >
-          <div className="w-full max-w-[var(--app-size-modal-max)] rounded-app-card [border:1px_var(--app-border-style)_var(--app-border-dashboard)] bg-[var(--app-color-dashboard-surface)] p-[var(--app-space-modal)] text-[var(--app-color-text-primary)] shadow-xl">
+          <div className="max-h-[calc(100vh-2rem)] w-full max-w-[var(--app-size-modal-max)] overflow-auto rounded-app-card [border:1px_var(--app-border-style)_var(--app-border-dashboard)] bg-[var(--app-color-dashboard-surface)] p-[var(--app-space-modal)] text-[var(--app-color-text-primary)] shadow-xl">
             <div className="mb-[var(--app-space-stack)]">
               <h2 id="delete-confirm-title" className="text-xl font-semibold">
                 Delete Post

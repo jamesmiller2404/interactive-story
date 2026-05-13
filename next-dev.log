@@ -1,5 +1,14 @@
 
 > interactive-story@0.1.0 dev
-> next dev --port 3000
+> next dev
 
-[?25h
+▲ Next.js 16.2.6 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://10.90.30.251:3000
+- Environments: .env
+✓ Ready in 655ms
+Creating turbopack project {
+  dir: 'C:\\Users\\rober\\Desktop\\Interactive_Digital_Storytelling2\\interactive-story',
+  testMode: true
+}
+

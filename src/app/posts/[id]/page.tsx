@@ -81,7 +81,7 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--app-color-reader-bg)] text-[var(--app-color-reader-text)]">
-        <div className="max-w-[var(--app-size-dashboard-content-max)] mx-auto p-[var(--app-space-dashboard-page)]">Loading post...</div>
+        <div className="mx-auto w-full max-w-[var(--app-size-dashboard-content-max)] p-[var(--app-space-dashboard-page)]">Loading post...</div>
       </div>
     )
   }
@@ -89,7 +89,7 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
   if (!post) {
     return (
       <div className="min-h-screen bg-[var(--app-color-reader-bg)] text-[var(--app-color-reader-text)]">
-        <div className="max-w-[var(--app-size-dashboard-content-max)] mx-auto p-[var(--app-space-dashboard-page)]">
+        <div className="mx-auto w-full max-w-[var(--app-size-dashboard-content-max)] p-[var(--app-space-dashboard-page)]">
           <h1 className="text-2xl font-bold">Post not found</h1>
           <p>The post you are looking for does not exist.</p>
         </div>
@@ -99,7 +99,7 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
 
   return (
     <div className="min-h-screen bg-[var(--app-color-reader-bg)] text-[var(--app-color-reader-text)]">
-      <article className="max-w-[var(--app-size-reader-content-max)] mx-auto px-[var(--app-space-reader-x)] py-[var(--app-space-reader-y)] font-serif leading-relaxed">
+      <article className="mx-auto w-full max-w-[var(--app-size-reader-content-max)] px-[var(--app-space-reader-x)] py-[var(--app-space-reader-y)] font-serif leading-relaxed">
         <header className="mb-[var(--app-space-section)]">
           <div className="mb-[var(--app-space-section)] flex gap-2">
             {post.status === 'DRAFT' && (
@@ -111,11 +111,11 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
               </Link>
             )}
           </div>
-          <h1 className="text-4xl font-bold font-sans mb-[var(--app-space-card)] leading-tight">
+          <h1 className="mb-[var(--app-space-card)] break-words font-sans text-3xl font-bold leading-tight sm:text-4xl">
             {post.title}
           </h1>
           {post.subtitle && (
-            <p className="mb-[var(--app-space-card)] font-sans text-xl leading-8 text-[var(--app-color-reader-placeholder)]">
+            <p className="mb-[var(--app-space-card)] break-words font-sans text-lg leading-7 text-[var(--app-color-reader-placeholder)] sm:text-xl sm:leading-8">
               {post.subtitle}
             </p>
           )}
@@ -128,7 +128,7 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
         </header>
 
         <div className="prose prose-lg max-w-none">
-          <div className="text-lg story-text" dangerouslySetInnerHTML={{ __html: post.content }} />
+          <div className="story-text text-base leading-7 sm:text-lg" dangerouslySetInnerHTML={{ __html: post.content }} />
         </div>
 
         <footer className="mt-[var(--app-space-reader-footer-margin)] space-y-1 pt-[var(--app-space-reader-footer-top)] [border-top:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] text-sm text-[var(--app-color-reader-muted)]">

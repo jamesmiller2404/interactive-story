@@ -66,8 +66,8 @@ function useAutoSave(id: number, title: string, subtitle: string, content: strin
 
     if (!enabled) {
       hasTrackedInitialStateRef.current = false
-      setSaveStatus('idle')
-      return
+      const idleTimeout = setTimeout(() => setSaveStatus('idle'), 0)
+      return () => clearTimeout(idleTimeout)
     }
 
     if (!hasTrackedInitialStateRef.current) {
@@ -76,8 +76,8 @@ function useAutoSave(id: number, title: string, subtitle: string, content: strin
     }
 
     if (!title.trim() && !subtitle.trim() && !content.trim()) {
-      setSaveStatus('idle')
-      return
+      const idleTimeout = setTimeout(() => setSaveStatus('idle'), 0)
+      return () => clearTimeout(idleTimeout)
     }
 
     saveVersionRef.current += 1
@@ -89,7 +89,7 @@ function useAutoSave(id: number, title: string, subtitle: string, content: strin
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
       if (savedTimeoutRef.current) clearTimeout(savedTimeoutRef.current)
     }
-  }, [enabled, title, subtitle, content])
+  }, [enabled, title, subtitle, content, saveDraft])
 
   const publishDraft = useCallback(async () => {
     const startTime = Date.now()
@@ -258,7 +258,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   if (loading) {
     return (
       <div className="min-h-screen bg-[var(--app-color-reader-bg)] text-[var(--app-color-reader-text)]">
-        <div className="max-w-[var(--app-size-reader-content-max)] mx-auto px-[var(--app-space-reader-x)] py-[var(--app-space-reader-y)] font-serif leading-relaxed">
+        <div className="mx-auto w-full max-w-[var(--app-size-reader-content-max)] px-[var(--app-space-reader-x)] py-[var(--app-space-reader-y)] font-serif leading-relaxed">
           Loading post...
         </div>
       </div>
@@ -268,7 +268,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   if (error || !post) {
     return (
       <div className="min-h-screen bg-[var(--app-color-reader-bg)] text-[var(--app-color-reader-text)]">
-        <div className="max-w-[var(--app-size-reader-content-max)] mx-auto px-[var(--app-space-reader-x)] py-[var(--app-space-reader-y)] font-serif leading-relaxed">
+        <div className="mx-auto w-full max-w-[var(--app-size-reader-content-max)] px-[var(--app-space-reader-x)] py-[var(--app-space-reader-y)] font-serif leading-relaxed">
           <h1 className="text-2xl font-bold">{error || 'Post not found'}</h1>
         </div>
       </div>
@@ -278,7 +278,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
   return (
     <div className="min-h-screen flex flex-col bg-[var(--app-color-reader-bg)] text-[var(--app-color-reader-text)]">
       <div className="sticky top-14 z-30 bg-[var(--app-color-reader-bg)] px-[var(--app-space-reader-x)] py-3 [border-bottom:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)]">
-        <div className="mx-auto max-w-[var(--app-size-reader-content-max)]">
+        <div className="mx-auto w-full max-w-[var(--app-size-reader-content-max)]">
           <EditorToolbar
             editor={editor}
             fileInputRef={fileInputRef}
@@ -288,7 +288,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
         </div>
       </div>
 
-      <main className="flex-1 max-w-[var(--app-size-reader-content-max)] mx-auto px-[var(--app-space-reader-x)] py-[var(--app-space-reader-y)] font-serif leading-relaxed">
+      <main className="mx-auto w-full max-w-[var(--app-size-reader-content-max)] flex-1 px-[var(--app-space-reader-x)] py-[var(--app-space-reader-y)] font-serif leading-relaxed">
         {error && (
           <div className="mb-[var(--app-space-stack)] rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-error-dark)] bg-[var(--app-color-error-dark-bg)] p-[var(--app-space-menu-item-x)] font-sans text-sm text-[var(--app-color-error-dark-text)]">
             {error}
@@ -315,7 +315,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
                 placeholder="Post Title"
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
-                className="edit-input rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[#020617] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] font-sans text-4xl font-bold leading-tight text-[var(--app-color-reader-text)] outline-none placeholder:text-[var(--app-color-reader-placeholder)] focus:[border-color:var(--app-border-reader-focus)]"
+                className="edit-input rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[#020617] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] font-sans text-3xl font-bold leading-tight text-[var(--app-color-reader-text)] outline-none placeholder:text-[var(--app-color-reader-placeholder)] focus:[border-color:var(--app-border-reader-focus)] sm:text-4xl"
               />
             </h1>
           </div>
@@ -347,7 +347,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
               <EditorContent
                 editor={editor}
                 aria-label="Content"
-                className="min-h-[var(--app-size-editor-min-height)] w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[#020617] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] text-lg text-[var(--app-color-reader-text)] outline-none focus-within:[border-color:var(--app-border-reader-focus)] [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[var(--app-size-editor-min-height)] [&_.ProseMirror]:text-lg [&_.ProseMirror]:text-[var(--app-color-reader-text)]"
+                className="min-h-[var(--app-size-editor-min-height)] w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[#020617] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] text-base leading-7 text-[var(--app-color-reader-text)] outline-none focus-within:[border-color:var(--app-border-reader-focus)] sm:text-lg sm:leading-8 [&_.ProseMirror]:min-h-[var(--app-size-editor-min-height)] [&_.ProseMirror]:text-base [&_.ProseMirror]:leading-7 [&_.ProseMirror]:text-[var(--app-color-reader-text)] [&_.ProseMirror]:outline-none sm:[&_.ProseMirror]:text-lg sm:[&_.ProseMirror]:leading-8"
               />
             </div>
           </div>
@@ -355,7 +355,7 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
       </main>
 
       <footer className="sticky bottom-0 bg-[var(--app-color-reader-surface)] [border-top:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] py-1 px-2 text-sm text-[var(--app-color-reader-muted)]">
-        <div className="max-w-[var(--app-size-reader-content-max)] mx-auto">
+        <div className="mx-auto w-full max-w-[var(--app-size-reader-content-max)]">
           Word count: {wordCount}
         </div>
       </footer>

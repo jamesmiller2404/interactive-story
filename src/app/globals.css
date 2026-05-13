@@ -9,7 +9,7 @@
   --app-border-caret-width: 0.25rem;
   --app-size-sidebar-width: 16rem;
   --app-size-dashboard-content-max: 56rem;
-  --app-size-reader-content-max: 45vw;
+  --app-size-reader-content-max: min(100%, 46rem);
   --app-size-modal-max: 28rem;
   --app-size-editor-min-height: 24rem;
   --app-space-dashboard-page: 2rem;
@@ -119,6 +119,11 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  overflow-x: hidden;
+}
+
+* {
+  box-sizing: border-box;
 }
 
 .edit-input {
@@ -135,10 +140,12 @@ body {
 
 .ProseMirror {
   line-height: var(--app-line-spacing) !important;
+  overflow-wrap: anywhere;
 }
 
 .prose {
   line-height: var(--app-line-spacing) !important;
+  overflow-wrap: anywhere;
 }
 
 .prose.prose-lg {
@@ -171,8 +178,8 @@ body {
 .prose .story-text pre {
   margin-top: 0.5rem;
   margin-bottom: 0.5rem;
-  margin-left: 3rem;
-  margin-right: 3;
+  margin-left: clamp(0rem, 6vw, 3rem);
+  margin-right: 0;
   background-color: rgba(255, 255, 255, 0.08);
   border-radius: 4px;
   padding: 0.75rem;
@@ -241,4 +248,21 @@ body {
 .ProseMirror figure[data-type="captioned-image"] figcaption:empty::before {
   content: "Add image description";
   color: var(--app-color-reader-placeholder);
+}
+
+@media (max-width: 640px) {
+  :root {
+    --app-size-editor-min-height: 18rem;
+    --app-space-dashboard-page: 1rem;
+    --app-space-sidebar: 1rem;
+    --app-space-section: 1.25rem;
+    --app-space-stack: 1rem;
+    --app-space-card: 0.875rem;
+    --app-space-modal: 1rem;
+    --app-space-overlay: 0.75rem;
+    --app-space-reader-x: 1rem;
+    --app-space-reader-y: 1.5rem;
+    --app-space-reader-footer-top: 1.25rem;
+    --app-space-reader-footer-margin: 2rem;
+  }
 }

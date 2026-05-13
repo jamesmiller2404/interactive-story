@@ -46,8 +46,8 @@ function getSaveDotClass(status: SaveStatus) {
 
 export default function AppTopBar() {
   const pathname = usePathname()
-  const [editorState, setEditorState] = useState<EditorTopBarState>(initialEditorState)
-  const [postState, setPostState] = useState<PostTopBarState>(initialPostState)
+  const [trackedEditorState, setTrackedEditorState] = useState<EditorTopBarState>(initialEditorState)
+  const [trackedPostState, setTrackedPostState] = useState<PostTopBarState>(initialPostState)
 
   const isEditorScreen = useMemo(
     () => pathname === '/posts/new' || /^\/posts\/[^/]+\/edit$/.test(pathname),
@@ -60,13 +60,12 @@ export default function AppTopBar() {
 
   useEffect(() => {
     if (!isEditorScreen) {
-      setEditorState(initialEditorState)
       return
     }
 
     const handleEditorStateChange = (event: Event) => {
       const nextState = (event as CustomEvent<Partial<EditorTopBarState>>).detail
-      setEditorState((currentState) => ({
+      setTrackedEditorState((currentState) => ({
         ...currentState,
         ...nextState,
       }))
@@ -78,13 +77,12 @@ export default function AppTopBar() {
 
   useEffect(() => {
     if (!isPostScreen) {
-      setPostState(initialPostState)
       return
     }
 
     const handlePostStateChange = (event: Event) => {
       const nextState = (event as CustomEvent<Partial<PostTopBarState>>).detail
-      setPostState((currentState) => ({
+      setTrackedPostState((currentState) => ({
         ...currentState,
         ...nextState,
       }))
@@ -106,6 +104,8 @@ export default function AppTopBar() {
     return null
   }
 
+  const editorState = isEditorScreen ? trackedEditorState : initialEditorState
+  const postState = isPostScreen ? trackedPostState : initialPostState
   const saveStatusClass =
     editorState.saveStatus === 'error'
       ? 'text-[var(--app-color-error-dark-text)]'
@@ -115,10 +115,10 @@ export default function AppTopBar() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-[var(--app-color-dashboard-border)] bg-[var(--app-color-dashboard-surface)] text-[var(--app-color-text-primary)]">
-      <div className="mx-auto flex min-h-14 w-full max-w-7xl flex-wrap items-center gap-2 px-4 py-2 sm:flex-nowrap sm:px-6">
+      <div className="mx-auto flex min-h-14 w-full max-w-7xl flex-wrap items-center gap-2 px-3 py-2 sm:flex-nowrap sm:px-6">
         <Link
           href="/"
-          className="inline-flex h-9 items-center rounded-app-button px-3 font-sans text-sm font-medium text-[var(--app-color-text-primary)] hover:bg-[var(--app-color-dashboard-border)]"
+          className="inline-flex h-9 items-center rounded-app-button px-2.5 font-sans text-sm font-medium text-[var(--app-color-text-primary)] hover:bg-[var(--app-color-dashboard-border)] sm:px-3"
         >
           Dashboard
         </Link>
@@ -128,7 +128,7 @@ export default function AppTopBar() {
             type="button"
             onClick={unpublishPost}
             disabled={postState.isUnpublishing}
-            className="inline-flex h-9 items-center rounded-app-button bg-red-600 px-3 font-sans text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex h-9 items-center rounded-app-button bg-red-600 px-2.5 font-sans text-sm font-medium text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50 sm:px-3"
           >
             {postState.isUnpublishing ? 'Unpublishing' : 'Unpublish'}
           </button>
@@ -137,23 +137,23 @@ export default function AppTopBar() {
             type="button"
             onClick={publishPost}
             disabled={!editorState.canPublish || editorState.isPublishing}
-            className="inline-flex h-9 items-center rounded-app-button bg-[var(--app-color-accent)] px-3 font-sans text-sm font-medium text-[var(--app-color-accent-foreground)] hover:bg-[var(--app-color-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex h-9 items-center rounded-app-button bg-[var(--app-color-accent)] px-2.5 font-sans text-sm font-medium text-[var(--app-color-accent-foreground)] hover:bg-[var(--app-color-accent-hover)] disabled:cursor-not-allowed disabled:opacity-50 sm:px-3"
           >
             {editorState.isPublishing ? 'Publishing' : 'Publish Post'}
           </button>
         ) : isPostScreen ? null : (
           <Link
             href="/posts/new"
-            className="inline-flex h-9 items-center rounded-app-button bg-[var(--app-color-dashboard-panel)] px-3 font-sans text-sm font-medium text-[var(--app-color-text-primary)] hover:bg-[var(--app-color-dashboard-border)]"
+            className="inline-flex h-9 items-center rounded-app-button bg-[var(--app-color-dashboard-panel)] px-2.5 font-sans text-sm font-medium text-[var(--app-color-text-primary)] hover:bg-[var(--app-color-dashboard-border)] sm:px-3"
           >
             Publish Post
           </Link>
         )}
 
         {!isPostScreen && (
-          <div className="ml-auto flex items-center gap-2">
+          <div className="flex w-full items-center gap-2 sm:ml-auto sm:w-auto">
             {editorState.saveStatus !== 'idle' && (
-              <span className={`inline-flex h-9 items-center gap-2 rounded-app-button px-3 font-sans text-sm ${saveStatusClass}`}>
+              <span className={`inline-flex h-9 items-center gap-2 rounded-app-button px-2.5 font-sans text-sm sm:px-3 ${saveStatusClass}`}>
                 <span
                   aria-hidden="true"
                   className={`h-2.5 w-2.5 rounded-full ${getSaveDotClass(editorState.saveStatus)}`}
@@ -165,12 +165,12 @@ export default function AppTopBar() {
             {isEditorScreen && editorState.previewHref ? (
               <Link
                 href={editorState.previewHref}
-                className="inline-flex h-9 items-center rounded-app-button bg-[var(--app-color-reader-surface)] px-3 font-sans text-sm font-medium text-[var(--app-color-reader-text)] hover:bg-[var(--app-color-reader-surface-hover)]"
+                className="ml-auto inline-flex h-9 items-center rounded-app-button bg-[var(--app-color-reader-surface)] px-2.5 font-sans text-sm font-medium text-[var(--app-color-reader-text)] hover:bg-[var(--app-color-reader-surface-hover)] sm:ml-0 sm:px-3"
               >
                 Preview Post
               </Link>
             ) : (
-              <span className="inline-flex h-9 items-center rounded-app-button px-3 font-sans text-sm text-[var(--app-color-text-muted)] opacity-60">
+              <span className="ml-auto inline-flex h-9 items-center rounded-app-button px-2.5 font-sans text-sm text-[var(--app-color-text-muted)] opacity-60 sm:ml-0 sm:px-3">
                 Preview Post
               </span>
             )}

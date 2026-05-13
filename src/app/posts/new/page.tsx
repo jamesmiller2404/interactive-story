@@ -73,8 +73,8 @@ function useAutoSave(title: string, subtitle: string, content: string) {
     }
 
     if (!title.trim() && !subtitle.trim() && !content.trim()) {
-      setSaveStatus('idle')
-      return
+      const idleTimeout = setTimeout(() => setSaveStatus('idle'), 0)
+      return () => clearTimeout(idleTimeout)
     }
 
     saveVersionRef.current += 1
@@ -86,7 +86,7 @@ function useAutoSave(title: string, subtitle: string, content: string) {
       if (timeoutRef.current) clearTimeout(timeoutRef.current)
       if (savedTimeoutRef.current) clearTimeout(savedTimeoutRef.current)
     }
-  }, [title, subtitle, content])
+  }, [title, subtitle, content, saveDraft])
 
 
 
@@ -212,9 +212,9 @@ export default function NewArticlePage() {
 
 
   return (
-    <div className="min-h-screen bg-[var(--app-color-reader-bg)] text-[var(--app-color-reader-text)]">
+    <div className="flex min-h-screen flex-col bg-[var(--app-color-reader-bg)] text-[var(--app-color-reader-text)]">
       <div className="sticky top-14 z-30 bg-[var(--app-color-reader-bg)] px-[var(--app-space-reader-x)] py-3 [border-bottom:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)]">
-        <div className="mx-auto max-w-[var(--app-size-reader-content-max)]">
+        <div className="mx-auto w-full max-w-[var(--app-size-reader-content-max)]">
           <EditorToolbar
             editor={editor}
             fileInputRef={fileInputRef}
@@ -224,7 +224,7 @@ export default function NewArticlePage() {
         </div>
       </div>
 
-      <main className="max-w-[var(--app-size-reader-content-max)] mx-auto px-[var(--app-space-reader-x)] py-[var(--app-space-reader-y)] pb-8 font-serif leading-relaxed">
+      <main className="mx-auto w-full max-w-[var(--app-size-reader-content-max)] flex-1 px-[var(--app-space-reader-x)] py-[var(--app-space-reader-y)] pb-8 font-serif leading-relaxed">
         {saveStatus === 'error' && (
           <p className="mb-[var(--app-space-stack)] font-sans text-sm text-[var(--app-color-error-dark-text)]">
             Failed to save draft
@@ -240,7 +240,7 @@ export default function NewArticlePage() {
                 placeholder="Post Title"
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
-                className="w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[#020617] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] font-sans text-4xl font-bold leading-tight text-[var(--app-color-reader-text)] outline-none placeholder:text-[var(--app-color-reader-placeholder)] focus:[border-color:var(--app-border-reader-focus)]"
+                className="w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[#020617] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] font-sans text-3xl font-bold leading-tight text-[var(--app-color-reader-text)] outline-none placeholder:text-[var(--app-color-reader-placeholder)] focus:[border-color:var(--app-border-reader-focus)] sm:text-4xl"
               />
             </h1>
           </div>
@@ -272,15 +272,15 @@ export default function NewArticlePage() {
               <EditorContent
                 editor={editor}
                 aria-label="Content"
-                className="min-h-[var(--app-size-editor-min-height)] w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[#020617] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] text-lg leading-8 text-[var(--app-color-reader-text)] outline-none focus-within:[border-color:var(--app-border-reader-focus)] [&_.ProseMirror]:outline-none [&_.ProseMirror]:min-h-[var(--app-size-editor-min-height)] [&_.ProseMirror]:text-lg [&_.ProseMirror]:leading-8 [&_.ProseMirror]:text-[var(--app-color-reader-text)]"
+                className="min-h-[var(--app-size-editor-min-height)] w-full rounded-app [border:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] bg-[#020617] px-[var(--app-space-control-x)] py-[var(--app-space-field-y)] text-base leading-7 text-[var(--app-color-reader-text)] outline-none focus-within:[border-color:var(--app-border-reader-focus)] sm:text-lg sm:leading-8 [&_.ProseMirror]:min-h-[var(--app-size-editor-min-height)] [&_.ProseMirror]:text-base [&_.ProseMirror]:leading-7 [&_.ProseMirror]:text-[var(--app-color-reader-text)] [&_.ProseMirror]:outline-none sm:[&_.ProseMirror]:text-lg sm:[&_.ProseMirror]:leading-8"
               />
             </div>
           </div>
         </div>
       </main>
 
-      <footer className="fixed bottom-0 left-0 right-0 bg-[var(--app-color-reader-surface)] [border-top:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] py-1 px-2 text-sm text-[var(--app-color-reader-muted)]">
-        <div className="max-w-[var(--app-size-reader-content-max)] mx-auto">
+      <footer className="sticky bottom-0 bg-[var(--app-color-reader-surface)] [border-top:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] py-1 px-2 text-sm text-[var(--app-color-reader-muted)]">
+        <div className="mx-auto w-full max-w-[var(--app-size-reader-content-max)]">
           Word count: {wordCount}
         </div>
       </footer>
