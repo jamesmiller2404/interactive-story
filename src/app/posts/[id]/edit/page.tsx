@@ -299,6 +299,11 @@ export default function EditPostPage({ params }: { params: Promise<{ id: string 
             Failed to save draft
           </p>
         )}
+        <div className="mb-[var(--app-space-stack)] space-y-1 font-sans text-sm text-[var(--app-color-reader-muted)]">
+          <p>Last edited</p>
+          <p>Date: {new Date(post.updatedAt).toLocaleDateString()}</p>
+          <p>Time: {new Date(post.updatedAt).toLocaleTimeString()}</p>
+        </div>
 
         <div className="space-y-[var(--app-space-stack)]">
           <div>

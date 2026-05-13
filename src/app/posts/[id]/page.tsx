@@ -121,9 +121,9 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
           )}
           <div className="space-y-1 text-sm text-[var(--app-color-reader-muted)] [border-bottom:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] pb-[var(--app-space-card)]">
             <time dateTime={new Date(post.createdAt).toISOString()}>
-              {new Date(post.createdAt).toLocaleDateString()}
+              Date: {new Date(post.createdAt).toLocaleDateString()}
             </time>
-            <p>{new Date(post.createdAt).toLocaleTimeString()}</p>
+            <p>Time: {new Date(post.createdAt).toLocaleTimeString()}</p>
           </div>
         </header>
 
@@ -133,8 +133,8 @@ export default function PostPage({ params }: { params: Promise<{ id: string }> }
 
         <footer className="mt-[var(--app-space-reader-footer-margin)] space-y-1 pt-[var(--app-space-reader-footer-top)] [border-top:var(--app-border-width)_var(--app-border-style)_var(--app-border-reader)] text-sm text-[var(--app-color-reader-muted)]">
           <p>{post.status === 'PUBLISHED' ? 'Published' : 'Draft last updated'}</p>
-          <p>{new Date(post.updatedAt).toLocaleDateString()}</p>
-          <p>{new Date(post.updatedAt).toLocaleTimeString()}</p>
+          <p>Date: {new Date(post.updatedAt).toLocaleDateString()}</p>
+          <p>Time: {new Date(post.updatedAt).toLocaleTimeString()}</p>
         </footer>
       </article>
     </div>

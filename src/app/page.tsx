@@ -341,8 +341,8 @@ export default function Home() {
                   </p>
                 )}
                 <div className="mt-[var(--app-space-label-gap)] space-y-1 text-sm text-[var(--app-color-text-muted)]">
-                  <p>{new Date(post.createdAt).toLocaleDateString()}</p>
-                  <p>{new Date(post.createdAt).toLocaleTimeString()}</p>
+                  <p>Date: {new Date(post.createdAt).toLocaleDateString()}</p>
+                  <p>Time: {new Date(post.createdAt).toLocaleTimeString()}</p>
                 </div>
               </div>
             ))}
